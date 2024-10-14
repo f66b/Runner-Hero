@@ -24,24 +24,14 @@ public class HalGreetings {
 		String line = br.readLine();
 		int index = line.indexOf(' ');
 		String[] names;
-		names = new String[2];
-		if (index == -1) {
-			// No space found, only first name was entered
-			names[0] = line; // First name
-			names[1] = ""; // Empty last name
-		} else {
-			// Split the first name and last name
-			names[0] = line.substring(0, index); // First name
-			names[1] = line.substring(index + 1); // Last name (could be empty)
-		}
-
+		names = line.split("\\s+");
 		return names;
 	}
 
 	private static void echoGreetings(PrintStream ps, String[] names) {
-		ps.print("Greetings " + names[0]);
-		if (!names[1].isEmpty()) {
-			ps.print(" " + names[1]);
+		ps.print("Greetings");
+		for (String name : names) {
+			ps.print(" " + name);
 		}
 		ps.println("!");
 	}
