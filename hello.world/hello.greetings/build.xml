@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Java Builded" default="all" basedir=".">
+	<description>
+	</description>
+
+	<property name="bin.dir" value="bin" />
+	<property name="class.path" value="bin" />
+	<property name="jars.dir" value="./jars" />
+	<property name="javac.compiler" value="javac10+" />
+	<property name="javac.target" value="11" />
+
+	<path id="jars.classpath">
+		<fileset dir="${jars.dir}">
+			<include name="*.jar" />
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${jars.dir}" />
+	</target>
+
+	<target name="compile" depends="init">
+		<javac destdir="${bin.dir}" 
+			debug="yes" 
+			compiler="${javac.compiler}" 
+			target="${javac.target}" 
+			includeantruntime="false" 
+			classpath="${class.path}">
+			<!--
+			  Adapt the following source paths,
+			  you need a line per source folder
+			  in your Eclipse project.
+			-->			
+			<src path="src"/>
+			<classpath refid="jars.classpath" />
+		</javac>
+	</target>
+
+	<target name="all" depends="clean,compile">
+	</target>
+
+	<target name="clean">
+		<delete dir="${bin.dir}" />
+	</target>
+
+</project>
