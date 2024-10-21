@@ -9,7 +9,7 @@ public class HangedMan {
 	public char[] currentWord; // The word chosen for the current game
 	private boolean[] guessedLetters; // Track which letters have been guessed
 	public int remainingTries; // Track remaining tries before the player loses
-	public final int MAX_TRIES = 6; // Maximum allowed wrong guesses
+	public final int MAX_TRIES = 10; // Maximum allowed wrong guesses
 
 	/*
 	 * The two constructors.
@@ -53,9 +53,9 @@ public class HangedMan {
 		}
 
 		// If the character was not found, decrease remaining tries
-		if (!found) {
-			remainingTries--;
-		}
+		
+		remainingTries--;
+		
 	}
 
 	/*

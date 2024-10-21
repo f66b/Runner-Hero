@@ -9,7 +9,7 @@ public class Game {
 	private PrintStream ps;
 	private Keyboard keyboard;
 	private HangedMan hangedMan;
-	private String[] words = { "apple", "banana", "grape", "orange", "peach" }; // Example word list
+	private String[] words = { "sicard", "palix", "grape", "onana", "gruber" }; // Example word list
 
 	public Game(String[] args, InputStream in, PrintStream out) {
 		this.ps = out;
@@ -52,7 +52,8 @@ public class Game {
 			}
 			// If the player lost
 			else if (hangedMan.lost()) {
-				ps.println("Sorry, you've lost! The word was: " + new String(hangedMan.currentWord)); // Reveal the correct word
+				ps.println("Sorry, you've lost! The word was: " + new String(hangedMan.currentWord)); // Reveal the
+																										// correct word
 			}
 			// Otherwise, show the current state and remaining tries
 			else {
