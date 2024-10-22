@@ -1,0 +1,5 @@
+package hello.greetings.tests;
+
+public class TestGreetings {
+
+}
