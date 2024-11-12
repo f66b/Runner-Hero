@@ -23,19 +23,15 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac destdir="${bin.dir}" 
-			debug="yes"
-                        source="11"  
-			target="11" 
-			includeantruntime="false" 
-			classpath="${class.path}">
+		<javac destdir="${bin.dir}" debug="yes" source="11" target="11" includeantruntime="false" classpath="${class.path}">
 			<!--
 			  Adapt the following source paths,
 			  you need a line per source folder
 			  in your Eclipse project.
-			-->			
-			<src path="src"/>
-                        <src path="tests"/>
+			-->
+
+			<src path="task1" />
+
 			<classpath refid="jars.classpath" />
 		</javac>
 	</target>
