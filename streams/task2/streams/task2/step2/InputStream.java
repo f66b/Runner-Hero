@@ -13,35 +13,41 @@ import java.io.EOFException;
  */
 
 public class InputStream {
+	private byte[] buffer; // Alias to the output stream's buffer
+	private int position; // Current reading position
+	private int limit;
 
-  /**
-   * Constructs an input stream from the given output stream
-   */
-  public InputStream(OutputStream s) {
-    // TODO
-    throw new RuntimeException("NYI");
-  }
+	/**
+	 * Constructs an input stream from the given output stream
+	 */
+	public InputStream(OutputStream s) {
+		this.buffer = s.getBytes(); // Get the written bytes from the output stream
+		this.position = 0; // Start reading from the beginning
+		this.limit = s.getSize();
+	}
 
-  /**
-   * @return the number of available bytes in this input stream.
-   *         Returning 0 means that are no available bytes but 
-   *         some might become available later.
-   *         Returning -1 indicates the end of the stream.
-   */
-  public int available() {
-    // TODO
-    throw new RuntimeException("NYI");
-  }
-  
-  /**
-   * Reads the next byte from this input stream. <br>
-   * 
-   * @return the read byte
-   * @throws IllegalStateException if there are no more byte to read
-   */
-  public byte read() {
-    // TODO
-    throw new RuntimeException("NYI");
-  }
-  
+	/**
+	 * @return the number of available bytes in this input stream. Returning 0 means
+	 *         that are no available bytes but some might become available later.
+	 *         Returning -1 indicates the end of the stream.
+	 */
+	public int available() {
+		if (position < limit) {
+			return limit - position;
+		}
+		return -1; // End of stream
+	}
+
+	/**
+	 * Reads the next byte from this input stream. <br>
+	 * 
+	 * @return the read byte
+	 * @throws IllegalStateException if there are no more byte to read
+	 */
+	public byte read() {
+		if (position >= limit) {
+			throw new IllegalStateException("NYI");
+		}
+		return buffer[position++];
+	}
 }
