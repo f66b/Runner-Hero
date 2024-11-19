@@ -31,7 +31,7 @@
 			-->
 
 			<src path="task1" />
-
+			<src path="task2" />
 			<classpath refid="jars.classpath" />
 		</javac>
 	</target>
