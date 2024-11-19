@@ -56,7 +56,7 @@ public class UTF8File {
       c3 = (int) is.read();
       if (((c2 & 0xC0) != 0x80) || ((c3 & 0xC0) != 0x80))
         throw new UTFDataFormatException("malformed input");
-      return (char) (((c1 & 0x0F) << 12) | ((2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
+      return (char) (((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
     default:
       /* 10xx xxxx,  1111 xxxx */
       throw new UTFDataFormatException("malformed input");
