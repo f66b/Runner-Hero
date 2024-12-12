@@ -43,13 +43,14 @@ public class InputStream {
 	 * @return the read byte
 	 * @throws EOFException if there are no more byte to read
 	 */
-	public byte read() throws EOFException {
+	public byte read() throws IllegalStateException{
 		if (available() > 0) {
 			byte input = buffer[offset];
 			offset++;
 			return input;
+		} else {
+			throw new IllegalStateException("No more bytes available to read.");
 		}
-		throw new EOFException();
 	}
 
 }
