@@ -1,113 +1,127 @@
 package streams.task3;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import streams.task2.step2.InputStream;
 
 /**
- * This is an data input stream that wraps an input stream of bytes,
- * allowing to read different Java types such as integers, floats,
- * and strings. The companion class is the class DataOutputStream.
+ * This is an data input stream that wraps an input stream of bytes, allowing to
+ * read different Java types such as integers, floats, and strings. The
+ * companion class is the class DataOutputStream.
  * 
  * @author Pr. Olivier Gruber.
  */
-
 public class DataInputStream {
-  InputStream is;
+	InputStream is;
 
-  DataInputStream(InputStream is) {
-    this.is = is;
-  }
+	DataInputStream(InputStream is) {
+		this.is = is;
+	}
 
-  /**
-   * @return true if the end of the stream has been reached,
-   *         false otherwise.
-   */
-  public boolean endOfStream() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @return true if the end of the stream has been reached, false otherwise.
+	 */
+	public boolean endOfStream() throws IOException {
+		return is.available() < 1;
+	}
 
-  /**
-   * @return a double value
-   * that was encoded over 8-bytes, with big-endian encoding.
-   */
-  public double readDouble() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @return a float value
+	 * @throws IOException if an internal error occurs
+	 */
+	public float readFloat() throws IOException {
+		return Float.intBitsToFloat(byteToInt(readNBytes(4)));
+	}
 
-  /**
-   * @return a float value
-   * that was encoded over 4-bytes, with big-endian encoding.
-   */
-  public float readFloat() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @returns a signed integer value
+	 * @throws IOException if an internal error occurs
+	 */
+	public int readInt() throws IOException {
+		return byteToInt(readNBytes(4));
+	}
 
-  /**
-   * @return a long value
-   * that was encoded over 8-bytes, with big-endian encoding.
-   */
-  public long readLong() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @returns a signed short value
+	 * @throws IOException if an internal error occurs
+	 */
+	public short readShort() throws IOException {
+		return byteToShort(readNBytes(2));
+	}
 
-  /**
-   * @returns a signed integer value
-   * that was encoded over 4-bytes, with big-endian encoding.
-   */
-  public int readInt() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @returns a signed short value
+	 * @throws IOException if an internal error occurs
+	 */
+	public byte readByte() throws IOException {
+		return is.read();
+	}
 
-  /**
-   * @returns a signed short value
-   * that was encoded over 2-bytes, with big-endian encoding.
-   */
-  public short readShort() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @returns a boolean value.
+	 * @throws IOException if an internal error occurs
+	 */
+	public boolean readBoolean() throws IOException {
+		return byteToBoolean(is.read());
+	}
 
-  /**
-   * @returns a signed byte value
-   */
-  public byte readByte() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @returns a character
+	 * @throws IOException if an internal error occurs
+	 */
+	public char readChar() throws IOException {
+		return byteToChar(readNBytes(2));
+	}
 
-  /**
-   * @returns a boolean value.
-   * Encoded over 1-bytes.
-   */
-  public boolean readBoolean() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	/**
+	 * @returns a string.
+	 * @throws IOException if an internal error occurs
+	 */
+	public String readUTF() throws IOException {
+		int size = readInt();
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < size; i++) {
+			sb.append(readChar());
+		}
+		return sb.toString();
+		
+		/* StringBuilder : utile en cas d'opérations nombreuses sur le même string */
+	}
 
-  /**
-   * Reads a UTF-8 encoded character 
-   * @return the read character
-   * @throws IllegalStateException if the next bytes
-   *         cannot be decoded as a utf8-encoded character.
-   */
-  public char readChar() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	private byte[] readNBytes(int n) throws IOException {
+		byte[] buffer = new byte[n];
+		for (int i = 0; i < n; i++) {
+			buffer[i] = is.read();
+		}
+		return buffer;
+	}
 
-  /**
-   * Reads a string of UTF-8 encoded characters. 
-   * @return the read string.
-   * @throws IllegalStateException if the next bytes
-   *         cannot be decoded as a utf8-encoded character.
-   */
-  public String readUTF() {
-    // TODO
-    throw new RuntimeException("Not Yet Implemented");
-  }
+	private short byteToShort(byte[] b) {
+		int b1 = ((b[0]) << 8) & 0xff00;
+		int b2 = ((b[1]) << 0) & 0x00ff;
+		short s = (short) (b1 | b2);
+		return s;
+	}
+
+	private int byteToInt(byte[] b) {
+		byte[] b1 = Arrays.copyOfRange(b, 0, 2);
+		byte[] b2 = Arrays.copyOfRange(b, 2, 4);
+		short s1 = byteToShort(b1);
+		short s2 = byteToShort(b2);
+		int i1 = (s1 << 16) & 0xffff0000;
+		int i2 = (s2 << 0) & 0x0000ffff;
+		int i = i1 | i2;
+		return i;
+	}
+
+	private char byteToChar(byte[] b) {
+		return (char) byteToShort(b);
+	}
+
+	private boolean byteToBoolean(byte b) {
+		return b == 1 ? true : false;
+	}
 
 }
+
