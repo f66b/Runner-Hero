@@ -13,17 +13,17 @@ import java.io.EOFException;
  */
 
 public class InputStream {
-	private byte[] buffer; // Alias to the output stream's buffer
-	private int position; // Current reading position
-	private int limit;
+	int size;
+
+	byte[] buffer;
+	int offset = 0;
 
 	/**
 	 * Constructs an input stream from the given output stream
 	 */
 	public InputStream(OutputStream s) {
-		this.buffer = s.getBytes(); // Get the written bytes from the output stream
-		this.position = 0; // Start reading from the beginning
-		this.limit = s.getSize();
+		size = s.getSize();
+		buffer = s.getBytes();
 	}
 
 	/**
@@ -32,22 +32,25 @@ public class InputStream {
 	 *         Returning -1 indicates the end of the stream.
 	 */
 	public int available() {
-		if (position < limit) {
-			return limit - position;
-		}
-		return -1; // End of stream
+		if (size - offset == 0)
+			return -1;
+		return size - offset;
 	}
 
 	/**
 	 * Reads the next byte from this input stream. <br>
 	 * 
 	 * @return the read byte
-	 * @throws IllegalStateException if there are no more byte to read
+	 * @throws EOFException if there are no more byte to read
 	 */
-	public byte read() {
-		if (position >= limit) {
-			throw new IllegalStateException("NYI");
+	public byte read() throws IllegalStateException{
+		if (available() > 0) {
+			byte input = buffer[offset];
+			offset++;
+			return input;
+		} else {
+			throw new IllegalStateException("No more bytes available to read.");
 		}
-		return buffer[position++];
 	}
+
 }
