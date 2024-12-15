@@ -16,7 +16,6 @@ public interface OutputStream {
    *         in which case a write operation would fail with
    *         illegal-state exception. 
    */
-  public int available();
 
   /**
    * Writes the given byte into this stream if there is room
