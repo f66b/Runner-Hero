@@ -1,6 +1,8 @@
-package oop.streams;
+package streams.task4;
 
-public class ByteArrayInputStream implements InputStream {
+import oop.streams.InputStream;
+
+public class ByteArrayInputStream implements InputStream{
 	private final byte[] buffer;
 	private final int startOffset;
 	private final int length;
@@ -46,4 +48,5 @@ public class ByteArrayInputStream implements InputStream {
 		}
 		return buffer[offset++];
 	}
+
 }

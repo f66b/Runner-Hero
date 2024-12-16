@@ -1,4 +1,7 @@
-package oop.streams;
+package streams.task4;
+
+import streams.task4.ByteArrayInputStream;
+import streams.task4.ByteArrayOutputStream;
 
 public class StreamTest {
     public static void main(String[] args) {
@@ -42,3 +45,4 @@ public class StreamTest {
         System.out.println("Stream test completed successfully.");
     }
 }
+

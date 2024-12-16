@@ -1,6 +1,7 @@
-package oop.streams;
+package streams.task4;
 
-public class ByteArrayOutputStream implements OutputStream {
+import oop.streams.OutputStream;
+public class ByteArrayOutputStream implements OutputStream{
 	private byte[] buffer;
 	private int position;
 	private final int delta;
@@ -36,7 +37,18 @@ public class ByteArrayOutputStream implements OutputStream {
 	}
 
 	@Override
-	public void write(byte value) {
+	public int available() {
+		if (position >= buffer.length) {
+			return -1;
+		}
+		return buffer.length - position ;
+	}
+	
+	@Override
+	public void write(byte value) throws IllegalStateException {
+		if (available()==-1) {
+			throw new IllegalStateException("no more bytes to read");
+		}
 		if (position >= buffer.length) {
 			growBuffer();
 		}
@@ -65,4 +77,5 @@ public class ByteArrayOutputStream implements OutputStream {
 	public int getSize() {
 		return position;
 	}
+
 }
