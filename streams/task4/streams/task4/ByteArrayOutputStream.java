@@ -2,9 +2,9 @@ package streams.task4;
 
 import oop.streams.OutputStream;
 public class ByteArrayOutputStream implements OutputStream{
-	private byte[] buffer;
-	private int position;
-	private final int delta;
+	public byte[] buffer;
+	public int position;
+	public final int delta;
 
 	/**
 	 * Constructs a ByteArrayOutputStream from a portion of a byte array.
