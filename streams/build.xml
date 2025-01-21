@@ -34,6 +34,7 @@
 			<src path="task2" />
 			<src path="task3" />   
 			<src path="task4" />
+			<src path="task5" />
 			<classpath refid="jars.classpath" />
 		</javac>
 	</target>

@@ -12,12 +12,20 @@ public class WrappedJavaInputStream implements InputStream {
 
   @Override
   public int available() {
-	  throw new RuntimeException("NYI");
+	  try {
+	      return m_is.available();
+	    } catch (java.io.IOException e) {
+	      throw new IllegalStateException("Error checking available bytes", e);
+	    }
   }
 
   @Override
   public byte read() {
-    throw new RuntimeException("NYI");
+	  try {
+	      return (byte) m_is.read();
+	    } catch (java.io.IOException e) {
+	      throw new IllegalStateException("Error reading from input stream", e);
+	    }
   }
 
 }

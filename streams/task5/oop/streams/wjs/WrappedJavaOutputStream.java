@@ -12,12 +12,16 @@ public class WrappedJavaOutputStream implements OutputStream {
 
   @Override
   public int available() {
-    throw new RuntimeException("NYI");
+	  return Integer.MAX_VALUE;
   }
 
   @Override
   public void write(byte value) {
-    throw new RuntimeException("NYI");
+	  try {
+	      m_os.write(value);
+	    } catch (java.io.IOException e) {
+	      throw new IllegalStateException("Error writing to output stream", e);
+	    }
   }
 
 }
