@@ -1,15 +1,16 @@
 package streams.task5.hm;
 
 public class HangedMan {
-
 	private final String[] words;
 	public char[] currentWord;
 	private boolean[] guessedLetters;
 	private int remainingTries;
 	private static final int DEFAULT_TRIES = 6;
+	private boolean[] usedLetters;
 
 	public HangedMan(String[] words) {
 		this.words = words;
+		this.usedLetters = new boolean[26];
 	}
 
 	public void newGame(int wordIndex) {
@@ -18,21 +19,52 @@ public class HangedMan {
 
 	public void newGame(int wordIndex, int tries) {
 		if (wordIndex < 0 || wordIndex >= words.length) {
-			throw new IllegalArgumentException("Invalid word index");
+			throw new IllegalArgumentException("Invalid word index: " + wordIndex);
 		}
-		currentWord = words[wordIndex].toCharArray();
+		currentWord = words[wordIndex].toLowerCase().toCharArray();
 		guessedLetters = new boolean[currentWord.length];
+
+		// Mark spaces and special characters as already guessed
+		for (int i = 0; i < currentWord.length; i++) {
+			char c = currentWord[i];
+			if (!Character.isLetter(c)) {
+				guessedLetters[i] = true;
+			}
+		}
+
 		remainingTries = tries;
+		usedLetters = new boolean[26];
 	}
 
 	public void play(char c) {
+		c = Character.toLowerCase(c);
+
+		// Only process letters
+		if (!Character.isLetter(c)) {
+			remainingTries--; // Invalid guess counts as a wrong try
+			return;
+		}
+
+		int letterIndex = c - 'a';
+		if (letterIndex < 0 || letterIndex >= 26) {
+			remainingTries--; // Invalid guess counts as a wrong try
+			return;
+		}
+
+		if (usedLetters[letterIndex]) {
+			return; // Already guessed this letter, don't penalize
+		}
+
+		usedLetters[letterIndex] = true;
+
 		boolean found = false;
 		for (int i = 0; i < currentWord.length; i++) {
-			if (currentWord[i] == c && !guessedLetters[i]) {
+			if (currentWord[i] == c) {
 				guessedLetters[i] = true;
 				found = true;
 			}
 		}
+
 		if (!found) {
 			remainingTries--;
 		}
@@ -41,15 +73,20 @@ public class HangedMan {
 	public String guessed() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < currentWord.length; i++) {
-			sb.append(guessedLetters[i] ? currentWord[i] : '-');
+			if (guessedLetters[i]) {
+				sb.append(currentWord[i]);
+			} else {
+				sb.append('-');
+			}
 		}
 		return sb.toString();
 	}
 
 	public boolean won() {
-		for (boolean guessed : guessedLetters) {
-			if (!guessed)
+		for (int i = 0; i < guessedLetters.length; i++) {
+			if (!guessedLetters[i]) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -61,5 +98,4 @@ public class HangedMan {
 	public int getRemainingTries() {
 		return remainingTries;
 	}
-
 }
