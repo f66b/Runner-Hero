@@ -4,18 +4,18 @@ import oop.streams.InputStream;
 import oop.streams.OutputStream;
 
 public class Script {
-    private final String[] words;
-    private final CharReader reader;
-    private final PrintStream out;
-    private final HangedMan hangedMan;
-    
+    private final String[] words;          
+    private final CharReader reader;   
+    private final PrintStream out; 
+    private final HangedMan hangedMan;     
+
     public Script(String[] words, InputStream is, OutputStream os) {
         this.words = words;
         this.reader = new CharReader(is);
         this.out = new PrintStream(os);
         this.hangedMan = new HangedMan(words);
     }
-    
+
     public void play() {
         try {
             String line;
@@ -57,6 +57,8 @@ public class Script {
     
     private void verifyWin() {
         if (!hangedMan.won()) {
+            out.println("Current state: " + hangedMan.guessed());
+            out.println("Remaining tries: " + hangedMan.getRemainingTries());
             throw new RuntimeException("Expected win but game is not won");
         }
         out.println("OK: Game won as expected");
