@@ -85,8 +85,8 @@ public class HangedMan {
     }
     
     public boolean won() {
-        for (int i = 0; i < currentWord.length; i++) {
-            if (!guessedLetters[i] && Character.isLetter(currentWord[i])) {
+        for (boolean guessed : guessedLetters) {
+            if (!guessed) {
                 return false;
             }
         }
@@ -94,11 +94,10 @@ public class HangedMan {
     }
     
     public boolean lost() {
-        return remainingTries <= 0;
+        return remainingTries < 0;
     }
     
     public int getRemainingTries() {
         return remainingTries;
     }
 }
-
