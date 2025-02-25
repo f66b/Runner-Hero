@@ -29,10 +29,12 @@
 			  you need a line per source folder
 			  in your Eclipse project.
 			-->
-			<src path="src" />
-			<src path="games" />
-			<src path="hal" />
-			<src path="tests" />
+
+			<src path="task1" />
+			<src path="task2" />
+			<src path="task3" />   
+			<src path="task4" />
+			<src path="task5" />
 			<classpath refid="jars.classpath" />
 		</javac>
 	</target>
