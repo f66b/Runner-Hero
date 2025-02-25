@@ -53,9 +53,7 @@ public class HangedMan {
             return;
         }
         
-        if (usedLetters[letterIndex]) {
-            return; // Already guessed this letter, don't penalize
-        }
+        boolean duplicate = usedLetters[letterIndex];
         
         usedLetters[letterIndex] = true;
         
@@ -67,7 +65,7 @@ public class HangedMan {
             }
         }
         
-        if (!found) {
+        if (!found || duplicate) {
             remainingTries--;
         }
     }
@@ -94,7 +92,7 @@ public class HangedMan {
     }
     
     public boolean lost() {
-        return remainingTries < 0;
+        return remainingTries <= 0;
     }
     
     public int getRemainingTries() {

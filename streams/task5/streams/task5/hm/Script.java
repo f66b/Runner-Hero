@@ -27,7 +27,7 @@ public class Script {
                 hangedMan.newGame(wordIndex, nTries);
                 writeString(os,"play: word=" + words[wordIndex] + " ntries=" + nTries + "\n");
             } else if (line.startsWith("guess:")) {
-                char guess = line.charAt(7);
+                char guess = line.substring(7).trim().charAt(0);
                 hangedMan.play(guess);
                 writeString(os,hangedMan.guessed() + "\n");
             } else if (line.equals("win")) {
