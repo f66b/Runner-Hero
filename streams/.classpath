@@ -9,6 +9,7 @@
 	<classpathentry kind="src" path="task2"/>
 	<classpathentry kind="src" path="task3"/>
 	<classpathentry kind="src" path="task4"/>
+	<classpathentry kind="src" path="task5"/>
 	<classpathentry kind="lib" path="tests.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
