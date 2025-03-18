@@ -30,6 +30,8 @@
 			  in your Eclipse project.
 			-->
 			<src path="task1"/>
+			<src path="_given"/>
+				<src path="given"/>
 			<classpath refid="jars.classpath" />
 		</javac>
 	</target>
