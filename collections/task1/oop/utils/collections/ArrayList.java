@@ -65,14 +65,14 @@ public class ArrayList implements IList{
 		  if (c==null) {
 			  throw new NullPointerException("array in null");
 		  }
-		  while(c.length>new_lenght) {
+		  while(c.length() > new_lenght) {
 			  i++;
 		  }
 		  elements = new Object[new_lenght];
 		  ICollection.Iterator it = c.iterator();
 		  size = 0;
 		  while(it.hasNext()) {
-			  elements[size++]=it.next;
+			  elements[size++]=it.next();
 		  }
 	  }
 	  @Override
@@ -94,16 +94,15 @@ public class ArrayList implements IList{
 	  }
 	 
 	  private void ensureCapacity(int minCapacity) {
-		  int i=0;
-	        if (minCapacity > elements.length) {
-	            int newCapacity = elements.length + i*GROWTH_FACTOR;
-	            while (newCapacity < minCapacity) {
-	                i++;
-	            }
-	            Object[] newElements = new Object[newCapacity];
-	            System.arraycopy(elements, 0, newElements, 0, size);
-	            elements = newElements;
-	        }
+		  if (minCapacity > elements.length) {
+		        int newCapacity = elements.length;
+		        while (newCapacity < minCapacity) {
+		            newCapacity += GROWTH_FACTOR;
+		        }
+		        Object[] newElements = new Object[newCapacity];
+		        System.arraycopy(elements, 0, newElements, 0, size);
+		        elements = newElements;
+		    }
 	    }
 
 	  
@@ -171,13 +170,13 @@ public class ArrayList implements IList{
 	        System.arraycopy(elements, 0, elems, 0, size);
 	    }
 	  @Override
-	  	public int lenght() {
+	  	public int length() {
 		  return size;
 	  }
 	  
 	  @Override
 	    public ICollection.Iterator iterator() {
-	        return new ArrayListIterator();
+	        return new ArrayListIterator(this);
 	    }
 	  
 	// Static inner class for Iterator implementation
