@@ -39,6 +39,7 @@
 			-->
 
 			<src path="task1" />
+			<src path="task2" />
 			<src path="given" />
 			<src path="tests" />
 			<classpath refid="jars.classpath" />
