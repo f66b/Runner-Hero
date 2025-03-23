@@ -165,7 +165,7 @@ public class ArrayList implements IList{
 	            throw new NullPointerException("Target array cannot be null");
 	        }
 	        if (elems.length < size) {
-	            throw new IllegalArgumentException("Target array too small");
+	        	elems = new Object[size];
 	        }
 	        System.arraycopy(elements, 0, elems, 0, size);
 	    }
