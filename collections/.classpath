@@ -11,5 +11,7 @@
 	<classpathentry kind="src" path="task1"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="task3"/>
+	<classpathentry kind="src" path="task4"/>
+	<classpathentry kind="src" path="contacts"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

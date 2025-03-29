@@ -1,0 +1,17 @@
+add phone="212 555 6732" name="Tom ";
+update phone="212 555 6732" email="tom@google.com";
+add phone="(33) 0676504565" name="Obelix ";
+update phone="(33) 0676504565" address="Village Gaullois, Contentin, France";
+update phone="(33) 0676504565" email="obelix@orange.fr";
+add phone="06 22 05 45 67" name="Asterix";
+update phone="06 22 05 45 67" address="Village Gaullois, Contentin, France";
+update phone="06 22 05 45 67" email="asterix@orange.fr";
+add phone="(1) 917 555 6732" name="Jerry";
+update phone="(1) 917 555 6732" email="jerry@google.com";
+update phone="(1) 917 555 6732" address="New York, NY, USA";
+add phone="06 0555 1234" name="Gruber Olivier";
+update phone="06 0555 1234" address="Grenoble, France";
+add phone="212 555 5678" name="Droopy ";
+update phone="212 555 5678" email="droopy@google.com";
+add phone="917 555 5678" name="Droopy " email="droopy917@google.com";
+add phone="917 555 1001" name="Tom" email="tom917@proton.com";
