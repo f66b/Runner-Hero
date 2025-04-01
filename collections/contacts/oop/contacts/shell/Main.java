@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 
 import oop.contacts.IContacts;
-import oop.utils.contacts.Contacts;
+import oop.util.contacts.Contacts;
 
 public class Main {
 
