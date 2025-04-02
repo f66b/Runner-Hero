@@ -158,9 +158,14 @@ public class Contacts implements IContacts{
 
     @Override
     public IContact get(IPhoneNumber phone) {
-        IMap phoneMap = new HashTable();
-        phoneMap.put("phone", phone.toString());
-        return (IContact) contacts.get(phoneMap);
+        IMap.Iterator it = contacts.iterator();
+        while (it.hasNext()) {
+            IContact contact = (IContact) it.next();
+            if (contact.phone().equals(phone)) {
+                return contact;
+            }
+        }
+        return null;
     }
 
     @Override

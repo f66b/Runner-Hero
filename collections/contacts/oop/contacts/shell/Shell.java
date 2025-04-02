@@ -109,7 +109,7 @@ public class Shell implements Parser.Listener {
   public void remove(IList fields) {
     String p = getValue(fields, "phone");
     if (p != null) {
-      IPhoneNumber phone = parsePhone("phone");
+      IPhoneNumber phone = parsePhone(p);
       IContact c = m_contacts.get(phone);
       if (c != null)
         m_contacts.remove(c);
@@ -180,16 +180,16 @@ public class Shell implements Parser.Listener {
   }
 
   private void print(IContact c) {
-    m_ps.println(c.name());
-    m_ps.println("  phone= " + c.phone());
-    IList.Iterator fields = c.fields();
-    while (fields.hasNext()) {
-      String name = (String) fields.next();
-      if (name.equals("phone") || name.equals("name"))
-        continue;
-      Object value = c.field(name);
-      m_ps.println("  " + name + "= \"" + value + "\"");
-    }
+	  m_ps.println(c.name().value());
+	    m_ps.println("  phone= " + c.phone().value());
+	    IList.Iterator fields = c.fields();
+	    while (fields.hasNext()) {
+	        String name = (String) fields.next();
+	        if (name.equals("phone") || name.equals("name"))
+	            continue;
+	        IValue value = c.field(name);
+	        m_ps.println("  " + name + "= \"" + value.value() + "\"");
+	    }
   }
 
   private IName parseName(String s) {
