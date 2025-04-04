@@ -167,12 +167,30 @@ public class Contacts implements IContacts{
         }
         return null;
     }
-
+    
+    private String normalizePhone(String phone) {
+        // Apply the same normalization as in parsePhone
+        return phone.replace('-', ' ').replace('.', ' ').replaceAll("  ", " ").trim();
+    }
+    
     @Override
     public void remove(IContact c) {
-        IMap phoneMap = new HashTable();
-        phoneMap.put("phone", c.phone().toString());
-        contacts.remove(phoneMap);
+        // Find the matching key in the contacts map
+        IMap.Iterator keys = contacts.keys();
+        while (keys.hasNext()) {
+            IMap keyMap = (IMap) keys.next();
+            String phoneString = (String) keyMap.get("phone");
+            String contactPhoneString = c.phone().value().toString();
+            
+            // Normalize phone strings before comparison
+            String normalizedKeyPhone = normalizePhone(phoneString);
+            String normalizedContactPhone = normalizePhone(contactPhoneString);
+            
+            if (normalizedKeyPhone.equals(normalizedContactPhone)) {
+                contacts.remove(keyMap);
+                return;
+            }
+        }
     }
 
     @Override
