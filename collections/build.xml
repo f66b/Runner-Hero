@@ -23,12 +23,23 @@
 	</target>
 	
 	<target name="tests">
-	        <java classname = "oop.collections.tests.AllTests"
-	            fork="true"  
-	            failonerror="true">  
-	            <classpath path="bin"></classpath>  
-	        </java>  
-		</target>
+	    <java classname="oop.collections.tests.AllTests"
+	        fork="true"  
+	        failonerror="true">  
+	        <classpath>
+	            <path location="bin"/>  
+	        </classpath>
+	    </java>  
+
+	    <java classname="oop.contacts.tests.AllTests"
+	        fork="true"  
+	        failonerror="true">  
+	        <classpath>
+	            <path location="bin"/>  
+	        </classpath>
+	    </java>  
+	</target>
+
 	
 	<target name="compile" depends="init">
 		<javac destdir="${bin.dir}" debug="yes" source="11" target="11" includeantruntime="false" classpath="${class.path}">
@@ -41,6 +52,8 @@
 			<src path="task1" />
 			<src path="task2" />
 			<src path="task3" />
+			<src path="task4" />
+			<src path="contacts" />
 			<src path="given" />
 			<src path="tests" />
 			<classpath refid="jars.classpath" />
