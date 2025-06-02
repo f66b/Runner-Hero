@@ -1,7 +1,7 @@
-#ECLIPSE
-bin/
-.bin/
-.settings/
-.project
-.classpath
-src/module-info.java
+/.metadata/
+/.settings/
+./recommenders/
+/bin/
+*.class
+/.project
+./classpath
