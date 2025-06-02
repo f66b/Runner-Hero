@@ -1,0 +1,7 @@
+#ECLIPSE
+bin/
+.bin/
+.settings/
+.project
+.classpath
+src/module-info.java

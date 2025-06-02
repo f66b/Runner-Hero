@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>shell</name>
+	<name>ple.task0</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -16,7 +16,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1745438127076</id>
+			<id>1747663121067</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
