@@ -10,7 +10,7 @@ public abstract class Avatar {
     public Avatar(View view, Entity entity) {
         this.view = view;
         this.entity = entity;
-        entity.setAvatar(this);
+        entity.avatar=this;
     }
 
     public abstract void render(Graphics2D g);

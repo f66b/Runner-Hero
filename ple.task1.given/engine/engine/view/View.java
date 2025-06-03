@@ -260,7 +260,7 @@ public abstract class View implements IView {
 
   @Override
   public void death(Entity entity) {
-    Avatar avatar = entity.getAvatar();
+    Object avatar = entity.getAvatar();
     if (avatar != null) {
       m_visibleAvatars.remove(avatar);
     }
