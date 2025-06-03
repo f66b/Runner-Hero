@@ -4,6 +4,7 @@ import engine.view.Avatar;
 
 public abstract class Entity {
   public Object avatar;
+  public Stunt Stunt;
   protected Model m_model;
   protected int m_row, m_col;
   protected double m_x, m_y; // Position in meters
