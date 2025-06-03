@@ -1,6 +1,9 @@
 package engine.model;
 
+import engine.view.Avatar;
+
 public abstract class Entity {
+  private Avatar avatar;
   protected Model m_model;
   protected int m_row, m_col;
   protected double m_x, m_y; // Position in meters
@@ -132,4 +135,11 @@ public abstract class Entity {
     }
   }
   
+  public void setAvatar(Avatar avatar) {
+    this.avatar = avatar;
+  }
+
+  public Avatar getAvatar() {
+    return avatar;
+  }
 }

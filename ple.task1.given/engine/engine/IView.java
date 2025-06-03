@@ -1,6 +1,8 @@
 package engine;
 
 import java.awt.Graphics2D;
+
+import engine.model.Entity;
 import oop.graphics.Canvas;
 
 /**
@@ -31,4 +33,7 @@ public interface IView {
     // Get mouse position in meters
     double getMouseMetersX();
     double getMouseMetersY();
+    
+    public void death(Entity entity);
+    public void birth(Entity entity);
 }

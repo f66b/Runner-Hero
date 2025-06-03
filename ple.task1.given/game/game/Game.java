@@ -26,9 +26,10 @@ public class Game {
     m_model = new Model(nrows, ncols);
     m_model.config(conf); // configure before adding entities
     
+    m_view = new View0(canvas, m_model);
     new Player(m_model, 5, 5, 0);
     
-    m_view = new View0(canvas, m_model);
+    
     m_controller = new Controller0(canvas, m_model, m_view);
     
     // Create and start the ticker for game updates

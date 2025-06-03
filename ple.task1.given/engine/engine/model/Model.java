@@ -3,9 +3,11 @@ package engine.model;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 
 import engine.IModel;
 import engine.view.View;
+import engine.IView;
 
 public class Model implements IModel {
   private int m_ncols, m_nrows;
@@ -15,12 +17,15 @@ public class Model implements IModel {
   private View m_view;
   private Config m_conf;
   private double m_cellSizeMeters = 1.0; // Default 1 meter per cell
+  private List<IView> m_views;
 
   public Model(int nr, int nc) {
     m_ncols = nc;
     m_nrows = nr;
     m_grid = new Entity[nr][nc];
     m_entities = new LinkedList<Entity>();
+    m_views = new ArrayList<>();
+    m_conf = new Config();
   }
   
   public Model(int nr, int nc, double cellSizeMeters) {
@@ -51,6 +56,11 @@ public class Model implements IModel {
     // If it's a player, set it as the player
     if (e instanceof Player) {
       m_player = (Player) e;
+    }
+    
+    // Notify all views of new entity
+    for (IView view : m_views) {
+      view.birth(e);
     }
   }
 
@@ -89,6 +99,11 @@ public class Model implements IModel {
     
     // Remove from entities list
     m_entities.remove(e);
+    
+    // Notify all views of entity removal
+    for (IView view : m_views) {
+      view.death(e);
+    }
   }
 
   /* 
@@ -194,6 +209,14 @@ public class Model implements IModel {
     for (Entity entity : toRemove) {
       removeEntity(entity);
     }
+  }
+
+  public void register(IView view) {
+    m_views.add(view);
+  }
+  
+  public void unregister(IView view) {
+    m_views.remove(view);
   }
 
 }

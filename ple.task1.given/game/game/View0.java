@@ -12,6 +12,9 @@ import engine.model.Player;
 import engine.model.Entity;
 import engine.model.Projectile;
 import oop.graphics.Canvas;
+import engine.view.Avatar;
+import game.view.PlayerAvatar;
+import game.view.ProjectileAvatar;
 
 public class View0 extends View {
   
@@ -122,5 +125,15 @@ public class View0 extends View {
     g.setColor(Color.YELLOW);
     g.setFont(new Font("Arial", Font.BOLD, 16));
     g.drawString("Hello", textX + 5, textY);
+  }
+  
+  @Override
+  protected Avatar createAvatarFor(Entity entity) {
+    if (entity instanceof Player) {
+      return new PlayerAvatar(this, entity);
+    } else if (entity instanceof Projectile) {
+      return new ProjectileAvatar(this, entity);
+    }
+    return null; // No avatar for unknown entity types
   }
 }

@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 import engine.IView;
 import engine.model.Model;
@@ -15,6 +17,7 @@ public abstract class View implements IView {
 
   protected Canvas m_canvas;
   protected Model m_model;
+  protected List<Avatar> m_visibleAvatars;
   private int m_mouseX = 0;
   private int m_mouseY = 0;
   private double m_viewportX = 0; // In meters
@@ -26,6 +29,9 @@ public abstract class View implements IView {
   public View(Canvas canvas, Model model) {
     m_canvas = canvas;
     m_model = model;
+    m_visibleAvatars = new ArrayList<>();
+    model.register(this);
+    
     // Calculate initial pixels per meter based on canvas size and world size
     m_pixelsPerMeter = Math.min(
       canvas.getWidth() / m_model.getWorldWidthMeters(),
@@ -143,7 +149,7 @@ public abstract class View implements IView {
     return m_debugMode;
   }
   
-  protected double getPixelsPerMeter() {
+  public double getPixelsPerMeter() {
     return m_pixelsPerMeter;
   }
 
@@ -164,11 +170,9 @@ public abstract class View implements IView {
     // Always draw grid
     drawGrid(g, canvas);
     
-    // Draw all entities using game-specific rendering
-    Iterator<Entity> entities = m_model.entities();
-    while (entities.hasNext()) {
-      Entity entity = entities.next();
-      drawEntity(g, canvas, entity);
+    // Draw all avatars
+    for (Avatar avatar : m_visibleAvatars) {
+      avatar.render(g);
     }
     
     // Restore original transform for UI elements
@@ -244,5 +248,28 @@ public abstract class View implements IView {
     g.drawString("  +/-: Zoom", 10, y);
     y += 15;
     g.drawString("  D: Toggle debug mode", 10, y);
+  }
+
+  @Override
+  public void birth(Entity entity) {
+    Avatar avatar = createAvatarFor(entity);
+    if (avatar != null) {
+      m_visibleAvatars.add(avatar);
+    }
+  }
+
+  @Override
+  public void death(Entity entity) {
+    Avatar avatar = entity.getAvatar();
+    if (avatar != null) {
+      m_visibleAvatars.remove(avatar);
+    }
+  }
+
+  // Factory method to create appropriate avatar for entity type
+  protected abstract Avatar createAvatarFor(Entity entity);
+
+  public Model getModel() {
+    return m_model;
   }
 }
