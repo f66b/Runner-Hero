@@ -3,44 +3,40 @@ package engine.model;
 public class Player extends Entity {
   private static final double MAX_VELOCITY = 5.0; // meters per second
   private static final double ROTATION_SPEED = 180.0; // degrees per second
-  private double m_targetOrientation;
-  private boolean m_rotatingToTarget;
   private double m_lastShotTime;
   private static final double SHOT_COOLDOWN = 0.5; // seconds between shots
 
   public Player(Model m, int x, int y, double o) {
     super(m, x, y, o);
-    m_targetOrientation = o;
-    m_rotatingToTarget = false;
-    m_lastShotTime = 0;
+    new game.model.StuntPlayer(m, this); // Create and link the stunt
   }
 
   /*
    * Move this entity up one row.
    */
   public void up() {
-    move(-1, 0);
+    stunt.up();
   }
 
   /*
    * Move this entity down one row.
    */
   public void down() {
-    move(1, 0);
+    stunt.down();
   }
 
   /*
    * Move this entity left one column.
    */
   public void left() {
-    move(0, -1);
+    stunt.left();
   }
 
   /*
    * Move this entity right one column.
    */
   public void right() {
-    move(0, 1);
+    stunt.right();
   }
   
   /*
@@ -69,7 +65,6 @@ public class Player extends Entity {
    */
   public void startRotatingLeft() {
     setAngularVelocity(-ROTATION_SPEED);
-    m_rotatingToTarget = false;
   }
   
   /*
@@ -77,7 +72,6 @@ public class Player extends Entity {
    */
   public void startRotatingRight() {
     setAngularVelocity(ROTATION_SPEED);
-    m_rotatingToTarget = false;
   }
   
   /*
@@ -85,25 +79,20 @@ public class Player extends Entity {
    */
   public void stopRotating() {
     setAngularVelocity(0);
-    m_rotatingToTarget = false;
   }
   
   /*
    * Set target orientation to rotate towards
    */
   public void setTargetOrientation(double angle) {
-    m_targetOrientation = angle;
-    m_rotatingToTarget = true;
+    // Implementation needed
   }
   
   /*
    * Rotate smoothly towards mouse position
    */
   public void rotateTowards(double targetX, double targetY) {
-    double dx = targetX - getX();
-    double dy = targetY - getY();
-    double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-    setTargetOrientation(targetAngle);
+    // Implementation needed
   }
   
   /*
@@ -168,28 +157,7 @@ public class Player extends Entity {
   
   @Override
   public void update(double deltaTime) {
-    // Handle smooth rotation to target
-    if (m_rotatingToTarget && Math.abs(getAngularVelocity()) < 0.01) {
-      double angleDiff = m_targetOrientation - orientation();
-      
-      // Normalize angle difference to [-180, 180]
-      while (angleDiff > 180) angleDiff -= 360;
-      while (angleDiff < -180) angleDiff += 360;
-      
-      if (Math.abs(angleDiff) > 1) {
-        // Rotate towards target
-        double rotationSpeed = Math.min(ROTATION_SPEED, Math.abs(angleDiff) / deltaTime);
-        setAngularVelocity(angleDiff > 0 ? rotationSpeed : -rotationSpeed);
-      } else {
-        // Close enough, stop rotating
-        face(m_targetOrientation);
-        setAngularVelocity(0);
-        m_rotatingToTarget = false;
-      }
-    }
-    
-    // Call parent update
+    // Call parent update for basic physics
     super.update(deltaTime);
   }
-
 }

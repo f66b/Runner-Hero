@@ -7,7 +7,7 @@ public abstract class Stunt {
 	protected Stunt(Model m,Entity e) {
 		this.e=e;
 		this.m=m;
-		e.Stunt=this;
+		e.stunt=this;
 	}
 	
 	 public void move(int nrows,int ncols) {
@@ -15,6 +15,16 @@ public abstract class Stunt {
 	 }
 	 public void rotate(double angle) {
 	 angle = angle + e.orientation();
-	 e.orient(angle);
+	 orient(angle);
 	 }
+	 protected void orient (double angle) {
+		 e.face(angle);
+	 }
+	 
+	 public abstract void rotateLeft();
+	 public abstract void rotateRight();
+	 public abstract void left();
+	    public abstract void right();
+	    public abstract void up();
+	    public abstract void down();
 }

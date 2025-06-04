@@ -13,15 +13,20 @@ public class Controller0 extends Controller {
   private boolean m_leftMousePressed;
   private boolean m_rightMousePressed;
   private boolean m_playerMoving;
+  private boolean m_shift=false;
   private boolean m_playerRotating;
   private double m_playerTargetAngle;
   private double m_gameTime = 0;
+  private PlayerKeyListener m_keyListener;
+  private PlayerMouseListener m_mouseListener;
   
   public Controller0(Canvas canvas, Model model, View view) {
     super(canvas, model, view);
-    // Override the listeners to add player control functionality
-    canvas.set(new PlayerKeyListener());
-    canvas.set(new PlayerMouseListener());
+    // Create and set our custom listeners
+    m_keyListener = new PlayerKeyListener();
+    m_mouseListener = new PlayerMouseListener();
+    canvas.set(m_keyListener);
+    canvas.set(m_mouseListener);
   }
   
   @Override
@@ -33,14 +38,17 @@ public class Controller0 extends Controller {
     
     // Handle player-specific updates
     Player player = m_model.player();
-    if (player != null && !m_leftMousePressed && !m_rightMousePressed) {
+    if (player != null && !m_leftMousePressed && !m_rightMousePressed && !m_shift && !m_playerMoving && !m_playerRotating) {
       // Make player face mouse immediately (no smooth rotation)
       double mouseX = m_view.getMouseMetersX();
       double mouseY = m_view.getMouseMetersY();
+      if (mouseX >= 0 && mouseX <= m_model.getWorldWidthMeters() && 
+    	      mouseY >= 0 && mouseY <= m_model.getWorldHeightMeters()) {
       double dx = mouseX - player.getX();
       double dy = mouseY - player.getY();
       double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
       player.face(targetAngle); // Instant rotation instead of smooth rotation
+    }
     }
   }
   
@@ -59,10 +67,14 @@ public class Controller0 extends Controller {
     return m_playerTargetAngle;
   }
 
-  private class PlayerKeyListener extends KeyListener {
+  protected class PlayerKeyListener extends KeyListener {
 
     @Override
     public void pressed(Canvas canvas, int keyCode, char keyChar) {
+    	if (keyCode == VirtualKeyCodes.VK_SHIFT) {
+            m_shift = true;
+            return;
+    	}
       // First handle parent functionality (special keys, zoom, viewport)
       super.pressed(canvas, keyCode, keyChar);
       
@@ -70,22 +82,36 @@ public class Controller0 extends Controller {
       Player player = m_model.player();
       if (player == null) return;
       
-      // Handle shooting with space
-      if (keyCode == VirtualKeyCodes.VK_SPACE) {
-        player.shoot(m_gameTime);
-        return;
-      }
-      
-      // Handle player movement (only when not controlling viewport)
+      // Handle movement only when not controlling viewport
       if (!m_ctrl) {
         switch (keyCode) {
           case VirtualKeyCodes.VK_UP:
-            player.startMovingCardinal();
+            player.up();
             m_playerMoving = true;
             break;
           case VirtualKeyCodes.VK_DOWN:
-            player.stopMoving();
-            m_playerMoving = false;
+            player.down();
+            m_playerMoving = true;
+            break;
+          case VirtualKeyCodes.VK_LEFT:
+            if (m_shift) {
+              // Shift+Left: rotate counter-clockwise
+              player.stunt.rotateLeft();
+            } else {
+              // Just Left: move left
+              player.left();
+            }
+            m_playerMoving = true;
+            break;
+          case VirtualKeyCodes.VK_RIGHT:
+            if (m_shift) {
+              // Shift+Right: rotate clockwise
+              player.stunt.rotateRight();
+            } else {
+              // Just Right: move right
+              player.right();
+            }
+            m_playerMoving = true;
             break;
         }
       }
@@ -95,69 +121,34 @@ public class Controller0 extends Controller {
     public void released(Canvas canvas, int keyCode, char keyChar) {
       // Handle parent functionality first
       super.released(canvas, keyCode, keyChar);
+      m_shift=false;
       
-      // Handle player movement releases
-      Player player = m_model.player();
-      if (player != null) {
-        if (keyCode == VirtualKeyCodes.VK_UP) {
-          player.stopMoving();
-          m_playerMoving = false;
-        }
-        // DOWN key handles stopping immediately when pressed, no need to handle release
+      // Handle movement key releases
+      if (keyCode == VirtualKeyCodes.VK_UP || 
+          keyCode == VirtualKeyCodes.VK_DOWN ||
+          keyCode == VirtualKeyCodes.VK_LEFT ||
+          keyCode == VirtualKeyCodes.VK_RIGHT) {
+        m_playerMoving = false;
       }
     }
   }
 
-  private class PlayerMouseListener extends MouseListener {
+  protected class PlayerMouseListener extends MouseListener {
 
     @Override
     public void moved(Canvas canvas, int px, int py) {
-      // Handle parent functionality (update mouse position)
+      // Just update mouse position in view, no auto-rotation
       super.moved(canvas, px, py);
-      
-      // Update player target angle
-      Player player = m_model.player();
-      if (player != null) {
-        double mouseX = m_view.getMouseMetersX();
-        double mouseY = m_view.getMouseMetersY();
-        double dx = mouseX - player.getX();
-        double dy = mouseY - player.getY();
-        m_playerTargetAngle = Math.toDegrees(Math.atan2(dy, dx));
-      }
     }
 
     @Override
     public void pressed(Canvas canvas, int bno, int x, int y) {
-      Player player = m_model.player();
-      if (player == null) return;
-      
-      if (bno == 1) { // Left button
-        m_leftMousePressed = true;
-        player.startRotatingLeft();
-        m_playerRotating = true;
-      } else if (bno == 3) { // Right button
-        m_rightMousePressed = true;
-        player.startRotatingRight();
-        m_playerRotating = true;
-      }
+      // Mouse controls disabled for grid-based movement
     }
 
     @Override
     public void released(Canvas canvas, int bno, int x, int y) {
-      Player player = m_model.player();
-      if (player == null) return;
-      
-      if (bno == 1) { // Left button
-        m_leftMousePressed = false;
-      } else if (bno == 3) { // Right button
-        m_rightMousePressed = false;
-      }
-      
-      // Stop rotating if no buttons pressed
-      if (!m_leftMousePressed && !m_rightMousePressed) {
-        player.stopRotating();
-        m_playerRotating = false;
-      }
+      // Mouse controls disabled for grid-based movement
     }
   }
 }

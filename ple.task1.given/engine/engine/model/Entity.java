@@ -4,7 +4,7 @@ import engine.view.Avatar;
 
 public abstract class Entity {
   public Object avatar;
-  public Stunt Stunt;
+  public Stunt stunt;
   protected Model m_model;
   protected int m_row, m_col;
   protected double m_x, m_y; // Position in meters
@@ -35,12 +35,7 @@ public abstract class Entity {
     return angle;
   }
 
-  /*
-   * Rotate the entity by the given angle
-   */
-  public void rotate(double theta) {
-    m_orientation = normalize(m_orientation + theta);
-  }
+  
 
   /*
    * Get the entity to face the orientation 
@@ -86,13 +81,8 @@ public abstract class Entity {
     m_angularVelocity = angularVelocity;
   }
 
-  /*
-   * Move this entity in the model by the given
-   * count of rows and columns.
-   */
-  public void move(int nrows, int ncols) {
-    m_model.move(this, nrows, ncols);
-  }
+  
+  
   
   /*
    * Set the position of this entity (package-private for Model access)
@@ -124,7 +114,7 @@ public abstract class Entity {
   public void update(double deltaTime) {
     // Update orientation based on angular velocity
     if (m_angularVelocity != 0) {
-      rotate(m_angularVelocity * deltaTime);
+      stunt.rotate(m_angularVelocity * deltaTime);
     }
     
     // Update position based on velocity and orientation

@@ -46,6 +46,8 @@ public class Model implements IModel {
     r = normalize(r, m_nrows);
     c = normalize(c, m_ncols);
     
+    System.out.println("Adding entity at grid position: " + r + "," + c);
+    
     // Update entity position
     e.setPosition(r, c);
     
@@ -56,9 +58,11 @@ public class Model implements IModel {
     // If it's a player, set it as the player
     if (e instanceof Player) {
       m_player = (Player) e;
+      System.out.println("Added player at metric position: " + e.getX() + "," + e.getY());
     }
     
     // Notify all views of new entity
+    System.out.println("Notifying " + m_views.size() + " views of new entity");
     for (IView view : m_views) {
       view.birth(e);
     }
@@ -69,7 +73,7 @@ public class Model implements IModel {
    * by adding the given number of rows and columns
    * to its current location.
    */
-  void move(Entity e, int nrows, int ncols) {
+  public void move(Entity e, int nrows, int ncols) {
     int oldRow = e.row();
     int oldCol = e.col();
     
