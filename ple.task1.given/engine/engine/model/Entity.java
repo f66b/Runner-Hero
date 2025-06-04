@@ -1,10 +1,12 @@
 package engine.model;
 
 import engine.view.Avatar;
+import engine.IBrain;
 
 public abstract class Entity {
   public Object avatar;
   public Stunt stunt;
+  public IBot bot;
   protected Model m_model;
   protected int m_row, m_col;
   protected double m_x, m_y; // Position in meters
