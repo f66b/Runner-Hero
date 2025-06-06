@@ -222,5 +222,7 @@ public class Model implements IModel {
   public void unregister(IView view) {
     m_views.remove(view);
   }
+  
+  
 
 }

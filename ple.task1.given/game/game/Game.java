@@ -9,6 +9,7 @@ import engine.model.Model;
 import engine.model.Player;
 import engine.view.View;
 import oop.graphics.Canvas;
+import engine.model.Brain;
 
 public class Game {
   private Canvas m_canvas;
@@ -16,6 +17,7 @@ public class Game {
   private View m_view;
   private Controller m_controller;
   private Ticker m_ticker;
+  private final Brain brain;
 
   Game(Canvas canvas, int nrows, int ncols) {
     this.m_canvas = canvas;
@@ -27,6 +29,9 @@ public class Game {
     m_model.config(conf); // configure before adding entities
     
     m_view = new View0(canvas, m_model);
+    
+    brain = new Brain();  // Initialize brain in constructor
+     
     new Player(m_model, 5, 5, 0);
     
     
