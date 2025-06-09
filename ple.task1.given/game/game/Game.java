@@ -14,7 +14,8 @@ import engine.model.Brain;
 import engine.model.Bot;
 import game.model.WalkerBot;
 import game.model.TrackerBot;
-public class Game {
+
+public class Game implements Ticker.Listener {
   private Entity e;
   private Canvas m_canvas;
   private Model m_model;
@@ -24,7 +25,6 @@ public class Game {
   private final Brain brain;
   private final Bot bot1;
   private final Bot bot2;
-  
 
   Game(Canvas canvas, int nrows, int ncols) {
     this.m_canvas = canvas;
@@ -38,16 +38,15 @@ public class Game {
     m_view = new View0(canvas, m_model);
     
     brain = new Brain();  // Initialize brain in constructor
-    bot1 = new WalkerBot(brain , e);
-    bot2 = new TrackerBot(brain,e);
+    bot1 = new WalkerBot(brain, e);
+    bot2 = new TrackerBot(brain, e);
     new Player(m_model, 5, 5, 0);
-    
     
     m_controller = new Controller0(canvas, m_model, m_view);
     
     // Create and start the ticker for game updates
     m_ticker = new Ticker();
-    m_ticker.addListener(m_controller);
+    m_ticker.addListener(this); // Listen for ticks directly in Game class
     m_ticker.start(60); // 60 FPS
   }
 
@@ -55,4 +54,22 @@ public class Game {
     m_view.paint(canvas, g);
   }
 
-}
+  @Override
+  public void onTick(double deltaTime) {
+    // Convert deltaTime from seconds to milliseconds
+    int elapsedMs = (int)(deltaTime * 1000);
+    
+    // Phase 1: Update all entities' stunts
+    for (Entity entity : m_model.entities()) {
+      if (entity.stunt != null) {
+        entity.stunt.tick(elapsedMs);
+      }
+    }
+    
+    // Phase 2: Update model physics
+    m_model.update(deltaTime);
+    
+    // Phase 3: Repaint the view
+    m_canvas.repaint();
+  }
+} 
