@@ -10,10 +10,18 @@ public abstract class Stunt {
     public static final int MOVE = 0;
     public static final int ROTATE = 1;
 
-    protected interface Action {
+    public interface Action {
         int kind();
         void tick(int elapsed);
         boolean isDone();
+        
+        // For MOVE actions
+        default int getDeltaRow() { return 0; }
+        default int getDeltaCol() { return 0; }
+        
+        // For ROTATE actions
+        default double getStartAngle() { return 0; }
+        default double getTargetAngle() { return 0; }
     }
 
     protected Stunt(Model m, Entity e) {
@@ -97,6 +105,16 @@ public abstract class Stunt {
         public boolean isDone() {
             return elapsed >= duration;
         }
+        
+        @Override
+        public int getDeltaRow() {
+            return dr;
+        }
+        
+        @Override
+        public int getDeltaCol() {
+            return dc;
+        }
     }
 
     private class Rotation implements Action {
@@ -139,6 +157,16 @@ public abstract class Stunt {
         @Override
         public boolean isDone() {
             return elapsed >= duration;
+        }
+        
+        @Override
+        public double getStartAngle() {
+            return startAngle;
+        }
+        
+        @Override
+        public double getTargetAngle() {
+            return targetAngle;
         }
     }
 
