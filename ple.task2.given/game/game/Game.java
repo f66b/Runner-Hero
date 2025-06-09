@@ -5,26 +5,19 @@ import java.awt.Graphics2D;
 import engine.Ticker;
 import engine.controller.Controller;
 import engine.model.Config;
-import engine.model.Entity;
 import engine.model.Model;
 import engine.model.Player;
 import engine.view.View;
 import oop.graphics.Canvas;
 import engine.model.Brain;
-import engine.model.Bot;
-import game.model.WalkerBot;
-import game.model.TrackerBot;
+
 public class Game {
-  private Entity e;
   private Canvas m_canvas;
   private Model m_model;
   private View m_view;
   private Controller m_controller;
   private Ticker m_ticker;
   private final Brain brain;
-  private final Bot bot1;
-  private final Bot bot2;
-  
 
   Game(Canvas canvas, int nrows, int ncols) {
     this.m_canvas = canvas;
@@ -38,8 +31,7 @@ public class Game {
     m_view = new View0(canvas, m_model);
     
     brain = new Brain();  // Initialize brain in constructor
-    bot1 = new WalkerBot(brain , e);
-    bot2 = new TrackerBot(brain,e);
+     
     new Player(m_model, 5, 5, 0);
     
     

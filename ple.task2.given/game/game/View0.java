@@ -81,17 +81,6 @@ public class View0 extends View {
                (int)(y - Math.sin(angle) * trailLength));
   }
   
-
-  private void drawBot(Graphics2D g, Projectile projectile, double x, double y, double size) {
-    g.setColor(Color.RED);
-    
-    // Draw projectile as a small circle
-    int radius = (int)(size );
-    g.fillOval((int)(x - radius), (int)(y - radius), radius * 2, radius * 2);
-    
-    
-  }
-  
   private void drawGenericEntity(Graphics2D g, Entity entity, double x, double y, double size) {
     g.setColor(Color.GREEN);
     int radius = (int)(size * 0.4);

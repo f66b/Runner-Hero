@@ -3,7 +3,6 @@ package engine.model;
 public class Player extends Entity {
   private static final double MAX_VELOCITY = 5.0; // meters per second
   private static final double ROTATION_SPEED = 180.0; // degrees per second
-  private static final double MOVEMENT_STEP = 0.3; // meters per discrete step
   private double m_lastShotTime;
   private static final double SHOT_COOLDOWN = 0.5; // seconds between shots
 
@@ -13,60 +12,42 @@ public class Player extends Entity {
   }
 
   /*
-   * Move this entity up one step (fluid movement)
+   * Move this entity up one row.
    */
   public void up() {
-    // Option 1: Use stunt system (maintains orientation behavior)
-    if (stunt != null) {
-      stunt.up();
-    } else {
-      // Option 2: Direct fluid movement
-      moveByPixels(0, -MOVEMENT_STEP);
-    }
+    stunt.up();
   }
 
   /*
-   * Move this entity down one step (fluid movement)
+   * Move this entity down one row.
    */
   public void down() {
-    if (stunt != null) {
-      stunt.down();
-    } else {
-      moveByPixels(0, MOVEMENT_STEP);
-    }
+    stunt.down();
   }
 
   /*
-   * Move this entity left one step (fluid movement)
+   * Move this entity left one column.
    */
   public void left() {
-    if (stunt != null) {
-      stunt.left();
-    } else {
-      moveByPixels(-MOVEMENT_STEP, 0);
-    }
+    stunt.left();
   }
 
   /*
-   * Move this entity right one step (fluid movement)
+   * Move this entity right one column.
    */
   public void right() {
-    if (stunt != null) {
-      stunt.right();
-    } else {
-      moveByPixels(MOVEMENT_STEP, 0);
-    }
+    stunt.right();
   }
   
   /*
-   * Start moving forward based on current orientation (continuous movement)
+   * Start moving forward based on current orientation
    */
   public void startMoving() {
     setVelocity(MAX_VELOCITY);
   }
   
   /*
-   * Start moving backward based on current orientation (continuous movement)
+   * Start moving backward based on current orientation
    */
   public void startMovingBackward() {
     setVelocity(-MAX_VELOCITY);
@@ -77,38 +58,6 @@ public class Player extends Entity {
    */
   public void stopMoving() {
     setVelocity(0);
-  }
-  
-  /*
-   * Move forward by a specific distance
-   */
-  public void moveForwardStep() {
-    moveForward(MOVEMENT_STEP);
-  }
-  
-  /*
-   * Move backward by a specific distance
-   */
-  public void moveBackwardStep() {
-    moveBackward(MOVEMENT_STEP);
-  }
-  
-  /*
-   * Strafe left (move left without changing orientation)
-   */
-  public void strafeLeft() {
-    double currentOrientation = orientation();
-    double strafeAngle = currentOrientation - 90; // 90 degrees left of current facing
-    moveInDirection(MOVEMENT_STEP, strafeAngle);
-  }
-  
-  /*
-   * Strafe right (move right without changing orientation)
-   */
-  public void strafeRight() {
-    double currentOrientation = orientation();
-    double strafeAngle = currentOrientation + 90; // 90 degrees right of current facing
-    moveInDirection(MOVEMENT_STEP, strafeAngle);
   }
   
   /*
@@ -133,29 +82,17 @@ public class Player extends Entity {
   }
   
   /*
-   * Rotate by a specific angle instantly
-   */
-  public void rotateBy(double angleDelta) {
-    face(orientation() + angleDelta);
-  }
-  
-  /*
    * Set target orientation to rotate towards
    */
   public void setTargetOrientation(double angle) {
-    // For smooth rotation, you could implement gradual turning here
-    // For now, just face the angle directly
-    face(angle);
+    // Implementation needed
   }
   
   /*
    * Rotate smoothly towards mouse position
    */
   public void rotateTowards(double targetX, double targetY) {
-    double dx = targetX - getX();
-    double dy = targetY - getY();
-    double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-    setTargetOrientation(targetAngle);
+    // Implementation needed
   }
   
   /*
@@ -216,14 +153,6 @@ public class Player extends Entity {
     }
     
     return nearestAngle;
-  }
-  
-  /*
-   * Set the movement step size for discrete movements
-   */
-  public void setMovementStep(double stepSize) {
-    // This would require making MOVEMENT_STEP non-final
-    // For now, this is just a placeholder for future enhancement
   }
   
   @Override

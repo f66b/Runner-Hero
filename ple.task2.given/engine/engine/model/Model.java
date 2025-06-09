@@ -72,73 +72,21 @@ public class Model implements IModel {
    * Move the given entity from its current location
    * by adding the given number of rows and columns
    * to its current location.
-   * 
-   * DEPRECATED: Use moveByPixels for fluid movement
    */
   public void move(Entity e, int nrows, int ncols) {
-    // Convert grid movement to pixel movement
-    double pixelDx = ncols * m_cellSizeMeters;
-    double pixelDy = nrows * m_cellSizeMeters;
-    moveByPixels(e, pixelDx, pixelDy);
-  }
-  
-  /*
-   * Move the given entity by the specified pixel amounts (in meters)
-   * This provides fluid movement instead of discrete grid movement
-   */
-  public void moveByPixels(Entity e, double deltaX, double deltaY) {
-    // Get current position
-    double currentX = e.getX();
-    double currentY = e.getY();
+    int oldRow = e.row();
+    int oldCol = e.col();
     
     // Calculate new position
-    double newX = currentX + deltaX;
-    double newY = currentY + deltaY;
+    int newRow = normalize(oldRow + nrows, m_nrows);
+    int newCol = normalize(oldCol + ncols, m_ncols);
     
-    // Handle world wrapping if configured
-    if (m_conf != null && m_conf.tore) {
-      // Wrap around world boundaries
-      while (newX < 0) newX += getWorldWidthMeters();
-      while (newX >= getWorldWidthMeters()) newX -= getWorldWidthMeters();
-      while (newY < 0) newY += getWorldHeightMeters();
-      while (newY >= getWorldHeightMeters()) newY -= getWorldHeightMeters();
-    } else {
-      // Clamp to world boundaries
-      newX = Math.max(0, Math.min(getWorldWidthMeters() - 0.01, newX));
-      newY = Math.max(0, Math.min(getWorldHeightMeters() - 0.01, newY));
-    }
+    // Update grid
+    m_grid[oldRow][oldCol] = null;
+    m_grid[newRow][newCol] = e;
     
-    // Update entity's metric position (this will automatically update grid position)
-    e.setMetricPosition(newX, newY);
-  }
-  
-  /*
-   * Move entity by a specific velocity and direction over time
-   */
-  public void moveByVelocity(Entity e, double velocity, double angleDegrees, double deltaTime) {
-    double angleRadians = Math.toRadians(angleDegrees);
-    double deltaX = Math.cos(angleRadians) * velocity * deltaTime;
-    double deltaY = Math.sin(angleRadians) * velocity * deltaTime;
-    moveByPixels(e, deltaX, deltaY);
-  }
-  
-  /*
-   * Internal method to update grid when entity changes position
-   * Called by Entity.setMetricPosition()
-   */
-  void updateEntityGridPosition(Entity e, int oldRow, int oldCol, int newRow, int newCol) {
-    // Remove from old grid position
-    if (oldRow >= 0 && oldRow < m_nrows && oldCol >= 0 && oldCol < m_ncols) {
-      if (m_grid[oldRow][oldCol] == e) {
-        m_grid[oldRow][oldCol] = null;
-      }
-    }
-    
-    // Add to new grid position
-    if (newRow >= 0 && newRow < m_nrows && newCol >= 0 && newCol < m_ncols) {
-      // Note: This might overwrite another entity - you may want collision detection here
-      m_grid[newRow][newCol] = e;
-    }
+    // Update entity position
+    e.setPosition(newRow, newCol);
   }
   
   /*
@@ -149,10 +97,8 @@ public class Model implements IModel {
     int col = e.col();
     
     // Remove from grid
-    if (row >= 0 && row < m_nrows && col >= 0 && col < m_ncols) {
-      if (m_grid[row][col] == e) {
-        m_grid[row][col] = null;
-      }
+    if (m_grid[row][col] == e) {
+      m_grid[row][col] = null;
     }
     
     // Remove from entities list
@@ -276,4 +222,7 @@ public class Model implements IModel {
   public void unregister(IView view) {
     m_views.remove(view);
   }
+  
+  
+
 }

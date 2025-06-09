@@ -37,6 +37,8 @@ public abstract class Entity {
     return angle;
   }
 
+  
+
   /*
    * Get the entity to face the orientation 
    * match the given angle
@@ -81,6 +83,9 @@ public abstract class Entity {
     m_angularVelocity = angularVelocity;
   }
 
+  
+  
+  
   /*
    * Set the position of this entity (package-private for Model access)
    */
@@ -93,58 +98,16 @@ public abstract class Entity {
   
   /*
    * Update the entity's continuous position
-   * This now supports fluid movement
    */
   public void setMetricPosition(double x, double y) {
-    // Store old grid position
-    int oldRow = m_row;
-    int oldCol = m_col;
-    
-    // Update metric position
     m_x = x;
     m_y = y;
-    
-    // Update grid position based on new metric position
+    // Update grid position
     int newRow = m_model.metersToGridY(y);
     int newCol = m_model.metersToGridX(x);
-    
-    // Update grid position if it changed
-    if (newRow != oldRow || newCol != oldCol) {
-      m_row = newRow;
-      m_col = newCol;
-      m_model.updateEntityGridPosition(this, oldRow, oldCol, newRow, newCol);
+    if (newRow != m_row || newCol != m_col) {
+      m_model.move(this, newRow - m_row, newCol - m_col);
     }
-  }
-  
-  /*
-   * Move entity by pixel amounts (in meters)
-   */
-  public void moveByPixels(double deltaX, double deltaY) {
-    m_model.moveByPixels(this, deltaX, deltaY);
-  }
-  
-  /*
-   * Move entity in a specific direction by a distance
-   */
-  public void moveInDirection(double distance, double angleDegrees) {
-    double angleRadians = Math.toRadians(angleDegrees);
-    double deltaX = Math.cos(angleRadians) * distance;
-    double deltaY = Math.sin(angleRadians) * distance;
-    moveByPixels(deltaX, deltaY);
-  }
-  
-  /*
-   * Move entity forward in its current orientation by a distance
-   */
-  public void moveForward(double distance) {
-    moveInDirection(distance, m_orientation);
-  }
-  
-  /*
-   * Move entity backward in its current orientation by a distance
-   */
-  public void moveBackward(double distance) {
-    moveInDirection(-distance, m_orientation);
   }
   
   /*
@@ -153,19 +116,15 @@ public abstract class Entity {
   public void update(double deltaTime) {
     // Update orientation based on angular velocity
     if (m_angularVelocity != 0) {
-      double rotationAmount = m_angularVelocity * deltaTime;
-      m_orientation = normalize(m_orientation + rotationAmount);
-      
-      // If using stunt system, also update through stunt
-      if (stunt != null) {
-        stunt.rotate(rotationAmount);
-      }
+      stunt.rotate(m_angularVelocity * deltaTime);
     }
     
     // Update position based on velocity and orientation
     if (m_velocity != 0) {
-      double distance = m_velocity * deltaTime;
-      moveForward(distance);
+      double radians = Math.toRadians(m_orientation);
+      double dx = Math.cos(radians) * m_velocity * deltaTime;
+      double dy = Math.sin(radians) * m_velocity * deltaTime;
+      setMetricPosition(m_x + dx, m_y + dy);
     }
   }
   
