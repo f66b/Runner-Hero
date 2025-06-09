@@ -53,30 +53,47 @@ public class Controller0 extends Controller {
         if (m_nPressed) {
           // N + Arrow: Strafe movement (without changing orientation)
           if (m_upPressed) {
-            player.stunt.strafeUp();
+            if (!player.stunt.move(0, -1)) {
+              // Movement rejected, stunt is busy
+              return;
+            }
           }
           if (m_downPressed) {
-            player.stunt.strafeDown();
+            if (!player.stunt.move(0, 1)) {
+              return;
+            }
           }
           if (m_leftPressed) {
-            player.stunt.strafeLeft();
+            if (!player.stunt.move(-1, 0)) {
+              return;
+            }
           }
           if (m_rightPressed) {
-            player.stunt.strafeRight();
+            if (!player.stunt.move(1, 0)) {
+              return;
+            }
           }
         } else {
           // Arrow only: Turn and move fluidly
           if (m_upPressed) {
-            player.stunt.startMovingUp();
+            if (!player.stunt.move(-1, 0)) {
+              return;
+            }
           }
           if (m_downPressed) {
-            player.stunt.startMovingDown();
+            if (!player.stunt.move(1, 0)) {
+              return;
+            }
           }
           if (m_leftPressed) {
-            player.stunt.startMovingLeft();
+            if (!player.stunt.move(0, -1)) {
+              return;
+            }
           }
           if (m_rightPressed) {
-            player.stunt.startMovingRight();
+            if (!player.stunt.move(0, 1)) {
+              return;
+            }
           }
         }
         m_playerMoving = true;
@@ -98,7 +115,10 @@ public class Controller0 extends Controller {
           double dx = mouseX - player.getX();
           double dy = mouseY - player.getY();
           double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-          player.face(targetAngle); // Instant rotation instead of smooth rotation
+          if (!player.stunt.rotate(targetAngle)) {
+            // Rotation rejected, stunt is busy
+            return;
+          }
         }
       }
     }
@@ -149,10 +169,14 @@ public class Controller0 extends Controller {
               m_upPressed = true;
               if (m_nPressed) {
                 // N + Up: Strafe up without changing orientation
-                player.stunt.strafeUp();
+                if (!player.stunt.move(0, -1)) {
+                  return;
+                }
               } else {
                 // Just Up: Face up and start moving
-                player.stunt.startMovingUp();
+                if (!player.stunt.move(-1, 0)) {
+                  return;
+                }
               }
               m_playerMoving = true;
             }
@@ -163,10 +187,14 @@ public class Controller0 extends Controller {
               m_downPressed = true;
               if (m_nPressed) {
                 // N + Down: Strafe down without changing orientation
-                player.stunt.strafeDown();
+                if (!player.stunt.move(0, 1)) {
+                  return;
+                }
               } else {
                 // Just Down: Face down and start moving
-                player.stunt.startMovingDown();
+                if (!player.stunt.move(1, 0)) {
+                  return;
+                }
               }
               m_playerMoving = true;
             }
@@ -177,15 +205,21 @@ public class Controller0 extends Controller {
               m_leftPressed = true;
               if (m_shift) {
                 // Shift+Left: rotate counter-clockwise
-                player.stunt.rotateLeft();
+                if (!player.stunt.rotate(-90)) {
+                  return;
+                }
                 m_playerRotating = true;
               } else if (m_nPressed) {
                 // N + Left: Strafe left without changing orientation
-                player.stunt.strafeLeft();
+                if (!player.stunt.move(-1, 0)) {
+                  return;
+                }
                 m_playerMoving = true;
               } else {
                 // Just Left: Face left and start moving
-                player.stunt.startMovingLeft();
+                if (!player.stunt.move(0, -1)) {
+                  return;
+                }
                 m_playerMoving = true;
               }
             }
@@ -196,15 +230,21 @@ public class Controller0 extends Controller {
               m_rightPressed = true;
               if (m_shift) {
                 // Shift+Right: rotate clockwise
-                player.stunt.rotateRight();
+                if (!player.stunt.rotate(90)) {
+                  return;
+                }
                 m_playerRotating = true;
               } else if (m_nPressed) {
                 // N + Right: Strafe right without changing orientation
-                player.stunt.strafeRight();
+                if (!player.stunt.move(1, 0)) {
+                  return;
+                }
                 m_playerMoving = true;
               } else {
                 // Just Right: Face right and start moving
-                player.stunt.startMovingRight();
+                if (!player.stunt.move(0, 1)) {
+                  return;
+                }
                 m_playerMoving = true;
               }
             }
@@ -282,4 +322,4 @@ public class Controller0 extends Controller {
       // Mouse controls disabled for grid-based movement
     }
   }
-}
+} 
