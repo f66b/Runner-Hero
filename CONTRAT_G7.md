@@ -10,15 +10,15 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
 ## Génération aléatoire du Model
 
 * [!] Génération des nouvelles entités qui apparaissent
-
+  Dans l'objet EnvironnementGenerator pour chaque 3 colonne générer, on cree une entité aleatoirement à travers la methode create entity
 ## Scrolling avec décalage
 
 * [!] décalage dans le tableau d'une case et génération de la dernière colonne
-
+  Vider la première case , décaler toutes les autre case et appeler un objet appelé EnvironnementGenerator qui genère la dérnière colonne
 (__explication technique sur le principe de décalage__)
 
 ## Grille ou (x,y) metric ?
-
+   Grille.
 * Joueur
   * [x] (x,y) en float et dans une case (col,row)   
   * [x] déplacement fluide
