@@ -10,14 +10,14 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
 ## Génération aléatoire du Model
 
 * [!] Génération des nouvelles entités qui apparaissent
-  Dans l'objet EnvironnementGenerator pour chaque 3 colonne générer, on cree une entité aleatoirement à travers la methode create entity
+  Dans l'objet EnvironnementGenerator pour chaque x colonne générer, on cree une entité aleatoirement à travers la methode create entity
 ## Scrolling avec décalage
 
 * [!] décalage dans le tableau d'une case et génération de la dernière colonne
-  Vider la première case , décaler toutes les autre case et appeler un objet appelé EnvironnementGenerator qui genère la dérnière colonne
+   décaler toutes les cases à gauche et appeler un objet appelé EnvironnementGenerator qui genère la dérnière colonne
 (__explication technique sur le principe de décalage__)
 
-## Grille ou (x,y) metric ?
+## Grille ou (x,y) metric ? : Imane
    Grille.
 * Joueur
   * [x] (x,y) en float et dans une case (col,row)   
@@ -30,7 +30,7 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
 
 ## Mécaniques de Base
 
-### 1. Mouvement du Joueur
+### 1. Mouvement du Joueur : Faycal
 - [x] **Course Automatique** : Déplacement horizontal continu vers la droite
 
 - [x] **Saut** : 
@@ -45,7 +45,7 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
   * [x] changement d'aspect
   * [] animation (sprite)
 
-### 2. Système de Santé
+### 2. Système de Santé : Driss
 - **Points de Vie (PV)** : 
   - [x] 3 PV maximum
   - [x] Perd 1 PV par projectile ennemi touché
@@ -57,7 +57,7 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
   - [x] Les points de santé restaurent 1 PV
   - [x] Maximum plafonné à 3 PV
 
-### 3. Ennemis et Dangers
+### 3. Ennemis et Dangers Faycal
 - **Obstacles Statiques** :
   - [x] Rochers : 1 case (nécessitent un saut)
   - [x] oiseaux : 1 case (nécessitent une glissade)
@@ -70,7 +70,7 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
   - [2] Projectiles évitables par saut/glissade
   - [x] 3 impacts = mort du joueur
 
-### 4. Collectables
+### 4. Collectables : Rim
 
 - [?] **Pièces (Coins)** :
   - +10 points par pièce collectée
@@ -80,7 +80,7 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
   - [x] Restaurent 1 PV (33% de la santé totale)
   - [x] Affichés comme cœurs
 
-### 5. Système de Score
+### 5. Système de Score : Amine
 
 - [x] **Score de Survie** : 
   - +1 point par seconde de jeu
@@ -91,13 +91,13 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
 
 - [?] **Score Total** = (Temps écoulé * multiplicateur) + Pièces collectées
 
-## Conditions de Défaite
+## Conditions de Défaite : Aya
 1. [x] Collision avec un obstacle physique ou un bot ou un oiseau
 2. [x] Impacts de 3 projectiles ennemis
 3. [] Chute dans un précipice
 
 
-## Règles Spéciales
+## Règles Spéciales : Driss
 
 - [x] Les entités disparaissent après avoir franchi l'écran
 - [x] Glisse tant qu'on appuie sur la flêche du bas et s'arrête instantanément quand on relâche la touche.
@@ -165,3 +165,13 @@ Le joueur contrôle un personnage qui court automatiquement vers la droite dans 
  * [ ] Bot en FSM Java
  * [ ] Bot en GAL + parser
 
+### Répartition précise des tâches OO
+
+| Membre | Responsabilité principale | Classe(s) assignée(s) | Détails à développer |
+|--------|---------------------------|----------------------|----------------------|
+| **Faycal** | Mouvements du joueur + Ennemis/Obstacles | `Player` (mouvements), `Rock`, `Pigeon`, `EnemyShooter`, `EnvironmentGenerator` | Finaliser les animations de saut / glissade, ajuster les vitesses, maintenir la logique de scrolling et de génération aléatoire ; équilibrer la cadence de tir et trajectoires ennemies. |
+| **Driss** | Gestion de la santé et dégâts | `HealthPickup` | Implémenter `onPickUp` pour : +1 PV (max 3) ; gérer invincibilité 0,5 s et feedback visuel. |
+| **Rim** | Système de collectables / scoring | `Coin` & (coop. avec Amine) | Implémenter `onPickUp` pour ajouter 10 pts via `ScoreManager` puis supprimer la pièce. |
+| **Aya** | Conditions de défaite | `DeathZone` | Implémenter `onPlayerCollision` : mise à 0 PV, déclenchement Game-Over. |
+| **Imane** | Adaptabilité du modèle | `DynamicModel` | Coder `resize` et `setCellSizeMeters` tout en conservant les entités existantes et informant les vues. |
+| **Amine** | Gestion du score global & HUD | `ScoreManager` | Calcul du score temps, multiplicateurs, intégration HUD, prise en compte des `Coin`. |
