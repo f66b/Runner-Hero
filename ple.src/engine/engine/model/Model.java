@@ -10,14 +10,15 @@ import engine.view.View;
 import engine.IView;
 
 public class Model implements IModel {
-  private int m_ncols, m_nrows;
-  private Entity[][] m_grid;
+  public int m_ncols, m_nrows;
+  public Entity[][] m_grid;
   private Player m_player;
-  private List<Entity> m_entities;
+  public List<Entity> m_entities;
   private View m_view;
   private Config m_conf;
-  private double m_cellSizeMeters = 1.0; // Default 1 meter per cell
-  private List<IView> m_views;
+  public double m_cellSizeMeters = 1.0; // Default 1 meter per cell
+  public List<IView> m_views;
+  private double m_worldScrollSpeed = 4.0; // Current world scroll speed (updated by game)
 
   public Model(int nr, int nc) {
     m_ncols = nc;
@@ -103,9 +104,11 @@ public class Model implements IModel {
       while (newY < 0) newY += getWorldHeightMeters();
       while (newY >= getWorldHeightMeters()) newY -= getWorldHeightMeters();
     } else {
-      // Clamp to world boundaries
-      newX = Math.max(0, Math.min(getWorldWidthMeters() - 0.01, newX));
+      // For runner-style games, allow entities to move beyond boundaries
+      // Only clamp Y coordinates to keep entities within vertical bounds
+      // Let X coordinates go negative or beyond world width for proper off-screen removal
       newY = Math.max(0, Math.min(getWorldHeightMeters() - 0.01, newY));
+      // Don't clamp X - allow entities to move off-screen for removal
     }
     
     // Update entity's metric position (this will automatically update grid position)
@@ -127,28 +130,37 @@ public class Model implements IModel {
    * Called by Entity.setMetricPosition()
    */
   void updateEntityGridPosition(Entity e, int oldRow, int oldCol, int newRow, int newCol) {
-    // Remove from old grid position
+    // Remove from old grid position (if it was within bounds)
     if (oldRow >= 0 && oldRow < m_nrows && oldCol >= 0 && oldCol < m_ncols) {
       if (m_grid[oldRow][oldCol] == e) {
         m_grid[oldRow][oldCol] = null;
       }
     }
     
-    // Add to new grid position
+    // Add to new grid position (only if within bounds)
+    // Entities can exist outside the grid for off-screen movement
     if (newRow >= 0 && newRow < m_nrows && newCol >= 0 && newCol < m_ncols) {
       // Note: This might overwrite another entity - you may want collision detection here
       m_grid[newRow][newCol] = e;
     }
+    // If entity is outside grid bounds, it's not placed in the grid but still exists in entities list
   }
   
   /*
    * Remove an entity from the model
    */
   public void removeEntity(Entity e) {
+    if (e == null) {
+      System.err.println("WARNING: Attempted to remove null entity");
+      return;
+    }
+    
     int row = e.row();
     int col = e.col();
+    String entityType = e.getClass().getSimpleName();
+    double x = e.getX();
     
-    // Remove from grid
+    // Remove from grid (if it's within bounds)
     if (row >= 0 && row < m_nrows && col >= 0 && col < m_ncols) {
       if (m_grid[row][col] == e) {
         m_grid[row][col] = null;
@@ -156,7 +168,14 @@ public class Model implements IModel {
     }
     
     // Remove from entities list
-    m_entities.remove(e);
+    boolean removed = m_entities.remove(e);
+    
+    if (removed) {
+      System.out.println("REMOVED: " + entityType + " at X=" + String.format("%.2f", x) + 
+                        " (grid: " + row + "," + col + "). Entities remaining: " + m_entities.size());
+    } else {
+      System.err.println("WARNING: Failed to remove " + entityType + " from entities list");
+    }
     
     // Notify all views of entity removal
     for (IView view : m_views) {
@@ -248,10 +267,10 @@ public class Model implements IModel {
   
   @Override
   public void update(double deltaTime) {
-    // Update all entities
+    // Update all entities using a snapshot to avoid concurrent modification
     List<Entity> toRemove = new LinkedList<>();
-    
-    for (Entity entity : m_entities) {
+    List<Entity> entitiesSnapshot = new ArrayList<>(m_entities);
+    for (Entity entity : entitiesSnapshot) {
       entity.update(deltaTime);
       
       // Check for expired projectiles
@@ -275,5 +294,19 @@ public class Model implements IModel {
   
   public void unregister(IView view) {
     m_views.remove(view);
+  }
+  
+  /**
+   * Get current world scroll speed
+   */
+  public double getWorldScrollSpeed() {
+    return m_worldScrollSpeed;
+  }
+  
+  /**
+   * Set current world scroll speed (called by game)
+   */
+  public void setWorldScrollSpeed(double speed) {
+    m_worldScrollSpeed = speed;
   }
 }

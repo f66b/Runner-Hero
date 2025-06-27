@@ -58,7 +58,11 @@ public abstract class Stunt {
 
     public void tick(int elapsedMs) {
         if (action == null) {
+        	if(e.bot != null) {
+        		
+        	
             e.bot.think(elapsedMs);
+        	}
         } else {
             action.tick(elapsedMs);
             if (action.isDone()) {
@@ -194,4 +198,6 @@ public abstract class Stunt {
     public abstract void startStrafingUp();
     public abstract void startStrafingDown();
     public abstract void strafeInDirection(double direction);
+    public abstract void slide();
+    public abstract void jump();
 } 

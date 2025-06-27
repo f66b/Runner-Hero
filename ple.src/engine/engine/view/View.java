@@ -10,6 +10,7 @@ import java.util.List;
 import engine.IView;
 import engine.model.Model;
 import engine.model.Entity;
+import engine.model.Player;
 import oop.graphics.Canvas;
 import java.util.Iterator;
 
@@ -20,11 +21,11 @@ public abstract class View implements IView {
   protected List<Avatar> m_visibleAvatars;
   private int m_mouseX = 0;
   private int m_mouseY = 0;
-  private double m_viewportX = 0; // In meters
-  private double m_viewportY = 0; // In meters
-  private double m_zoomLevel = 1.0;
-  private double m_pixelsPerMeter = 50.0; // Default scale
-  private boolean m_debugMode = false;
+  public double m_viewportX = 0; // In meters
+  public double m_viewportY = 0; // In meters
+  public double m_zoomLevel = 1.0;
+  public double m_pixelsPerMeter = 50.0; // Default scale
+  public boolean m_debugMode = false;
 
   public View(Canvas canvas, Model model) {
     m_canvas = canvas;
@@ -158,21 +159,23 @@ public abstract class View implements IView {
     // Save original transform
     AffineTransform originalTransform = g.getTransform();
     
-    // Clear background
-    g.setColor(Color.WHITE);
+    // Clear background (will be drawn by subclass)
+    g.setColor(Color.BLACK);
     g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    
+    // Update camera to follow player for runner-style gameplay
+    updateCameraForPlayer();
     
     // Apply viewport transformations
     g.translate(-m_viewportX * m_pixelsPerMeter * m_zoomLevel, 
                 -m_viewportY * m_pixelsPerMeter * m_zoomLevel);
     g.scale(m_zoomLevel, m_zoomLevel);
     
-    // Always draw grid
-    drawGrid(g, canvas);
-    
-    // Draw all avatars
-    for (Avatar avatar : m_visibleAvatars) {
-      avatar.render(g);
+    // Draw all entities using iterator (Model.entities() returns Iterator)
+    java.util.Iterator<Entity> iter = m_model.entities();
+    while (iter.hasNext()) {
+      Entity entity = iter.next();
+      drawEntity(g, canvas, entity);
     }
     
     // Restore original transform for UI elements
@@ -184,32 +187,35 @@ public abstract class View implements IView {
     }
   }
   
+  /**
+   * Update camera to follow player smoothly for runner-style gameplay
+   */
+  private void updateCameraForPlayer() {
+    Player player = m_model.player();
+    if (player != null) {
+      // Keep player at 1/4 from left edge of screen for runner-style view
+      double targetViewportX = player.getX() - (m_canvas.getWidth() / (m_pixelsPerMeter * m_zoomLevel)) * 0.25;
+      
+      // Smooth camera following
+      double cameraSpeed = 0.1; // Adjust for smoother/faster following
+      m_viewportX += (targetViewportX - m_viewportX) * cameraSpeed;
+      
+      // Keep player vertically centered
+      double targetViewportY = player.getY() - (m_canvas.getHeight() / (m_pixelsPerMeter * m_zoomLevel)) * 0.5;
+      m_viewportY += (targetViewportY - m_viewportY) * cameraSpeed;
+      
+      // Clamp viewport to world bounds
+      double maxViewportX = m_model.getWorldWidthMeters() - m_canvas.getWidth() / (m_pixelsPerMeter * m_zoomLevel);
+      double maxViewportY = m_model.getWorldHeightMeters() - m_canvas.getHeight() / (m_pixelsPerMeter * m_zoomLevel);
+      
+      m_viewportX = Math.max(0, Math.min(maxViewportX, m_viewportX));
+      m_viewportY = Math.max(0, Math.min(maxViewportY, m_viewportY));
+    }
+  }
+  
+  // Remove grid drawing entirely for runner game
   private void drawGrid(Graphics2D g, Canvas canvas) {
-    g.setColor(Color.LIGHT_GRAY);
-    
-    double cellSizePixels = m_model.getCellSizeMeters() * m_pixelsPerMeter;
-    
-    // Calculate visible grid bounds
-    int startCol = Math.max(0, (int)(m_viewportX / m_model.getCellSizeMeters()));
-    int endCol = Math.min(m_model.ncols(), 
-      (int)((m_viewportX + canvas.getWidth() / (m_pixelsPerMeter * m_zoomLevel)) / m_model.getCellSizeMeters()) + 1);
-    int startRow = Math.max(0, (int)(m_viewportY / m_model.getCellSizeMeters()));
-    int endRow = Math.min(m_model.nrows(), 
-      (int)((m_viewportY + canvas.getHeight() / (m_pixelsPerMeter * m_zoomLevel)) / m_model.getCellSizeMeters()) + 1);
-    
-    // Draw vertical lines
-    for (int i = startCol; i <= endCol; i++) {
-      double x = i * cellSizePixels;
-      g.drawLine((int)x, (int)(startRow * cellSizePixels), 
-                 (int)x, (int)(endRow * cellSizePixels));
-    }
-    
-    // Draw horizontal lines
-    for (int i = startRow; i <= endRow; i++) {
-      double y = i * cellSizePixels;
-      g.drawLine((int)(startCol * cellSizePixels), (int)y, 
-                 (int)(endCol * cellSizePixels), (int)y);
-    }
+    // No grid for runner game - background will be drawn by View0
   }
   
   // Abstract method for game-specific entity rendering

@@ -1,5 +1,10 @@
 package engine.model;
 
+/**
+ * Player class for the runner-hero game.
+ * The player runs automatically to the right and can jump/slide to avoid obstacles.
+ * Has a health system with invincibility frames.
+ */
 public class Player extends Entity {
   private static final double MAX_VELOCITY = 5.0; // meters per second
   private static final double ROTATION_SPEED = 180.0; // degrees per second
@@ -7,55 +12,135 @@ public class Player extends Entity {
   private double m_lastShotTime;
   private static final double SHOT_COOLDOWN = 0.5; // seconds between shots
 
+  // Health system
+  private int m_health = 3; // Max 3 health points
+  private static final int MAX_HEALTH = 3;
+  private boolean m_invincible = false;
+  private double m_invincibilityTimer = 0;
+  private static final double INVINCIBILITY_DURATION = 0.5; // 0.5 seconds
+  
+  // Runner-style movement
+  private static final double RUNNER_SPEED = 3.0; // Auto-movement speed
+  private boolean m_isAlive = true;
+
   public Player(Model m, int x, int y, double o) {
     super(m, x, y, o);
     new game.model.StuntPlayer(m, this); // Create and link the stunt
+    // Always face right for runner style
+    face(0);
+  }
+
+  /**
+   * Get current health points
+   */
+  public int getHealth() {
+    return m_health;
+  }
+  
+  /**
+   * Get maximum health points
+   */
+  public int getMaxHealth() {
+    return MAX_HEALTH;
+  }
+  
+  /**
+   * Heal the player by the specified amount
+   */
+  public void heal(int amount) {
+    m_health = Math.min(MAX_HEALTH, m_health + amount);
+    System.out.println("Player healed. Health: " + m_health + "/" + MAX_HEALTH);
+  }
+  
+  /**
+   * Damage the player by the specified amount
+   */
+  public void takeDamage(int damage) {
+    if (m_invincible) {
+      return; // No damage during invincibility
+    }
+    
+    m_health -= damage;
+    System.out.println("Player took " + damage + " damage. Health: " + m_health + "/" + MAX_HEALTH);
+    
+    if (m_health <= 0) {
+      m_health = 0;
+      die();
+    } else {
+      // Start invincibility frames
+      m_invincible = true;
+      m_invincibilityTimer = INVINCIBILITY_DURATION;
+    }
+  }
+  
+  /**
+   * Kill the player instantly (collision with obstacle/bot)
+   */
+  public void die() {
+    m_isAlive = false;
+    m_health = 0;
+    System.out.println("Player died!");
+    // TODO: Trigger game over
+  }
+  
+  /**
+   * Check if player is alive
+   */
+  public boolean isAlive() {
+    return m_isAlive;
+  }
+  
+  /**
+   * Check if player is invincible
+   */
+  public boolean isInvincible() {
+    return m_invincible;
   }
 
   /*
-   * Move this entity up one step (fluid movement)
+   * Move this entity up one step (jump in runner style)
    */
   public void up() {
-    // Option 1: Use stunt system (maintains orientation behavior)
     if (stunt != null) {
-      stunt.up();
-    } else {
-      // Option 2: Direct fluid movement
-      moveByPixels(0, -MOVEMENT_STEP);
+      stunt.jump();
     }
   }
 
   /*
-   * Move this entity down one step (fluid movement)
+   * Move this entity down one step (slide in runner style)
    */
   public void down() {
     if (stunt != null) {
-      stunt.down();
-    } else {
-      moveByPixels(0, MOVEMENT_STEP);
+      stunt.slide();
     }
   }
 
   /*
-   * Move this entity left one step (fluid movement)
+   * Move this entity left one step (not used in runner style)
    */
   public void left() {
-    if (stunt != null) {
-      stunt.left();
-    } else {
-      moveByPixels(-MOVEMENT_STEP, 0);
-    }
+    // No left movement in runner style
   }
 
   /*
-   * Move this entity right one step (fluid movement)
+   * Move this entity right one step (not used in runner style - auto movement)
    */
   public void right() {
-    if (stunt != null) {
-      stunt.right();
-    } else {
-      moveByPixels(MOVEMENT_STEP, 0);
-    }
+    // No manual right movement in runner style - handled by automatic movement
+  }
+  
+  /**
+   * Jump (same as up)
+   */
+  public void jump() {
+    up();
+  }
+  
+  /**
+   * Slide (same as down)
+   */
+  public void slide() {
+    down();
   }
   
   /*
@@ -143,19 +228,15 @@ public class Player extends Entity {
    * Set target orientation to rotate towards
    */
   public void setTargetOrientation(double angle) {
-    // For smooth rotation, you could implement gradual turning here
-    // For now, just face the angle directly
-    face(angle);
+    // For runner style, always face right
+    face(0);
   }
   
   /*
-   * Rotate smoothly towards mouse position
+   * Rotate smoothly towards mouse position (not used in runner style)
    */
   public void rotateTowards(double targetX, double targetY) {
-    double dx = targetX - getX();
-    double dy = targetY - getY();
-    double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-    setTargetOrientation(targetAngle);
+    // Not used in runner style
   }
   
   /*
@@ -198,37 +279,73 @@ public class Player extends Entity {
     while (currentAngle >= 360) currentAngle -= 360;
     
     // Cardinal directions
-    double[] cardinals = {0, 90, 180, 270}; // East, South, West, North
+    double[] cardinals = {0, 90, 180, 270};
+    double closest = cardinals[0];
+    double minDiff = Math.abs(currentAngle - closest);
     
-    double nearestAngle = cardinals[0];
-    double minDifference = Math.abs(currentAngle - cardinals[0]);
-    
-    // Check all cardinal directions
     for (double cardinal : cardinals) {
       double diff = Math.abs(currentAngle - cardinal);
-      // Also check the wrapped-around difference (e.g., 350° vs 10°)
-      double wrappedDiff = Math.min(diff, 360 - diff);
-      
-      if (wrappedDiff < minDifference) {
-        minDifference = wrappedDiff;
-        nearestAngle = cardinal;
+      if (diff > 180) diff = 360 - diff; // Handle wrap-around
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = cardinal;
       }
     }
     
-    return nearestAngle;
+    return closest;
   }
   
-  /*
-   * Set the movement step size for discrete movements
-   */
   public void setMovementStep(double stepSize) {
-    // This would require making MOVEMENT_STEP non-final
-    // For now, this is just a placeholder for future enhancement
+    // Movement step customization
   }
-  
+
   @Override
   public void update(double deltaTime) {
-    // Call parent update for basic physics
     super.update(deltaTime);
+    
+    // Update invincibility timer
+    if (m_invincible) {
+      m_invincibilityTimer -= deltaTime;
+      if (m_invincibilityTimer <= 0) {
+        m_invincible = false;
+        m_invincibilityTimer = 0;
+      }
+    }
+    
+    // Check collisions with other entities
+    checkCollisions();
+  }
+  
+  /**
+   * Check collisions with other entities in the same grid cell
+   */
+  private void checkCollisions() {
+    if (!m_isAlive) return;
+    
+    Entity other = m_model.entity(row(), col());
+    if (other != null && other != this) {
+      handleCollision(other);
+    }
+  }
+  
+  /**
+   * Handle collision with another entity
+   */
+  private void handleCollision(Entity other) {
+    if (other instanceof Collectable) {
+      // Handle collectible pickup
+      Collectable collectable = (Collectable) other;
+      collectable.onPickUp(this);
+    } else if (other instanceof Rock || other instanceof Pigeon) {
+      // Instant death from obstacle collision
+      die();
+    } else if (other instanceof Projectile) {
+      // Projectile collision is handled by the Projectile class itself
+      // with strategic hit detection - don't handle here to avoid conflicts
+      System.out.println("Player grid collision with projectile detected (handled by Projectile class)");
+    } else if (other instanceof DeathZone) {
+      // Instant death from death zone
+      die();
+    }
   }
 }

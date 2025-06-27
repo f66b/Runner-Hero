@@ -10,7 +10,9 @@ public abstract class Bot implements IBrain.IBot {
     protected Bot(Brain b, Entity e) {
         this.b = b;
         this.e = e;
-        e.bot = this;
+        if(e != null) {
+        	e.bot = this;
+        }
         this.delay = 200; // Default delay of 200ms
         this.wait = false;
     }
@@ -63,7 +65,7 @@ public abstract class Bot implements IBrain.IBot {
 
     // Utility methods for conditions
     protected Entity cell(Direction d) {
-        if (e.model == null) return null;
+        if (e.m_model == null) return null;
         
         double angle = d.isRelative() ? 
             (e.orientation() + d.degrees()) % 360 : 
@@ -77,25 +79,31 @@ public abstract class Bot implements IBrain.IBot {
         else if (angle == 180) col--;
         else if (angle == 270) row--;
         
-        return e.model.entityAt(row, col);
+        return e.m_model.entity(row, col);
     }
 
     protected Entity cell(Direction d, Category c) {
         Entity entity = cell(d);
-        if (entity != null && entity.category().equals(c)) {
+        if (entity != null) {
+            // Note: Category system is not implemented in Entity
+            // This method would need the category system to be implemented
             return entity;
         }
         return null;
     }
 
     protected Entity closest(Category c) {
-        if (e.model == null) return null;
+        if (e.m_model == null) return null;
         
         Entity closest = null;
         double minDist = Double.MAX_VALUE;
         
-        for (Entity other : e.model.entities()) {
-            if (other != e && other.category().equals(c)) {
+        java.util.Iterator<Entity> iter = e.m_model.entities();
+        while (iter.hasNext()) {
+            Entity other = iter.next();
+            if (other != e) {
+                // Note: Category system is not implemented in Entity
+                // This method would need the category system to be implemented
                 double dist = Math.sqrt(
                     Math.pow(other.row() - e.row(), 2) + 
                     Math.pow(other.col() - e.col(), 2)

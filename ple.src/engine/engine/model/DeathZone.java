@@ -7,7 +7,7 @@ package engine.model;
  * Aya – complete {@link #onPlayerCollision(Player)} to trigger the defeat logic
  * (e.g., set player HP to 0, notify Game over screen…).
  */
-public class DeathZone extends Obstacle {
+public class DeathZone extends Entity {
 
     public DeathZone(Model model, int row, int col) {
         super(model, row, col, 0);
@@ -16,10 +16,20 @@ public class DeathZone extends Obstacle {
     @Override
     public void update(double deltaTime) {
         // Stationary hazard – no movement required.
+        
+        // Check if player is in the same cell
+        Player player = m_model.player();
+        if (player != null && player.row() == this.row() && player.col() == this.col()) {
+            onPlayerCollision(player);
+        }
     }
 
-    @Override
+    /**
+     * Handle collision with player - instant death
+     */
     public void onPlayerCollision(Player player) {
-        // TODO (Aya): implement defeat condition – immediate game over.
+        // Implement defeat condition – immediate game over
+        System.out.println("Player entered death zone - Game Over!");
+        player.die(); // Instant death
     }
 } 

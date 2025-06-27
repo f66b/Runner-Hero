@@ -6,246 +6,81 @@ import engine.model.Player;
 import engine.view.View;
 import oop.graphics.Canvas;
 import oop.graphics.VirtualKeyCodes;
-import engine.model.Stunt;
 
 public class Controller0 extends Controller {
   
   // Player control states
-  private boolean m_leftMousePressed;
-  private boolean m_rightMousePressed;
-  private boolean m_playerMoving;
-  private boolean m_shift = false;
-  private boolean m_nPressed = false; // New: N key state for strafe mode
-  private boolean m_playerRotating;
-  private double m_playerTargetAngle;
-  private double m_gameTime = 0;
-  private PlayerKeyListener m_keyListener;
-  private PlayerMouseListener m_mouseListener;
-  
-  // Movement key states for continuous movement
   private boolean m_upPressed = false;
   private boolean m_downPressed = false;
-  private boolean m_leftPressed = false;
-  private boolean m_rightPressed = false;
+
+  private PlayerKeyListener m_keyListener;
+  private UIManager m_ui;
   
-  public Controller0(Canvas canvas, Model model, View view) {
+  public Controller0(Canvas canvas, Model model, View view, UIManager ui) {
     super(canvas, model, view);
-    // Create and set our custom listeners
+    this.m_ui = ui;
     m_keyListener = new PlayerKeyListener();
-    m_mouseListener = new PlayerMouseListener();
     canvas.set(m_keyListener);
-    canvas.set(m_mouseListener);
+    // register our custom mouse listener to forward clicks to UIManager
+    canvas.set(new MouseListener());
+    // Mouse events are handled by UIManager, not by this controller
   }
   
   @Override
   public void update(double deltaTime) {
-    m_gameTime += deltaTime;
-    
-    // Call parent update for viewport controls
+    // Parent update handles viewport controls
     super.update(deltaTime);
-    
-    // Handle continuous movement based on pressed keys
-    Player player = m_model.player();
-    if (player != null) {
-      
-      // Handle continuous movement when keys are held down
-      if (m_upPressed || m_downPressed || m_leftPressed || m_rightPressed) {
-        if (m_nPressed) {
-          // N + Arrow: Strafe movement (without changing orientation)
-          if (m_upPressed) {
-            if (!player.stunt.move(0, -1)) {
-              // Movement rejected, stunt is busy
-              return;
-            }
-          }
-          if (m_downPressed) {
-            if (!player.stunt.move(0, 1)) {
-              return;
-            }
-          }
-          if (m_leftPressed) {
-            if (!player.stunt.move(-1, 0)) {
-              return;
-            }
-          }
-          if (m_rightPressed) {
-            if (!player.stunt.move(1, 0)) {
-              return;
-            }
-          }
-        } else {
-          // Arrow only: Turn and move fluidly
-          if (m_upPressed) {
-            if (!player.stunt.move(-1, 0)) {
-              return;
-            }
-          }
-          if (m_downPressed) {
-            if (!player.stunt.move(1, 0)) {
-              return;
-            }
-          }
-          if (m_leftPressed) {
-            if (!player.stunt.move(0, -1)) {
-              return;
-            }
-          }
-          if (m_rightPressed) {
-            if (!player.stunt.move(0, 1)) {
-              return;
-            }
-          }
-        }
-        m_playerMoving = true;
-      } else {
-        // No movement keys pressed, stop moving
-        if (m_playerMoving) {
-          player.stunt.stopMoving();
-          m_playerMoving = false;
-        }
-      }
-      
-      // Handle mouse facing only when not moving and not in special modes
-      if (!m_leftMousePressed && !m_rightMousePressed && !m_shift && !m_playerMoving && !m_playerRotating && !m_nPressed) {
-        // Make player face mouse immediately (no smooth rotation)
-        double mouseX = m_view.getMouseMetersX();
-        double mouseY = m_view.getMouseMetersY();
-        if (mouseX >= 0 && mouseX <= m_model.getWorldWidthMeters() && 
-            mouseY >= 0 && mouseY <= m_model.getWorldHeightMeters()) {
-          double dx = mouseX - player.getX();
-          double dy = mouseY - player.getY();
-          double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-          if (!player.stunt.rotate(targetAngle)) {
-            // Rotation rejected, stunt is busy
-            return;
-          }
-        }
-      }
-    }
+    // Player movement logic is now entirely in StuntPlayer.tick()
   }
   
   @Override
   public boolean isPlayerMoving() {
-    return m_playerMoving;
+    Player player = m_model.player();
+    if (player != null && player.stunt instanceof game.model.StuntPlayer) {
+      game.model.StuntPlayer stunt = (game.model.StuntPlayer) player.stunt;
+      return stunt.isJumping() || stunt.isSliding();
+    }
+    return false;
   }
   
   @Override
   public boolean isPlayerRotating() {
-    return m_playerRotating;
+    return false; // No rotation in runner style
   }
   
   @Override
   public double getPlayerTargetAngle() {
-    return m_playerTargetAngle;
+    return 0; // Always facing right
   }
 
   protected class PlayerKeyListener extends KeyListener {
 
     @Override
     public void pressed(Canvas canvas, int keyCode, char keyChar) {
-      if (keyCode == VirtualKeyCodes.VK_SHIFT) {
-        m_shift = true;
-        return;
-      }
-      
-      // Handle N key for strafe mode
-      if (keyChar == 'N' || keyChar == 'n') {
-        m_nPressed = true;
-        return;
-      }
-      
       // First handle parent functionality (special keys, zoom, viewport)
       super.pressed(canvas, keyCode, keyChar);
       
-      // Then handle player-specific controls
       Player player = m_model.player();
-      if (player == null) return;
+      if (player == null || !player.isAlive()) return; // Don't process keys if player is dead
       
-      // Handle movement only when not controlling viewport
+      // Handle movement only when not controlling viewport and game is running
       if (!m_ctrl) {
         switch (keyCode) {
           case VirtualKeyCodes.VK_UP:
-            if (!m_upPressed) { // Only trigger on initial press
+          case VirtualKeyCodes.VK_SPACE: // Space bar also triggers jump
+            if (!m_upPressed) {
               m_upPressed = true;
-              if (m_nPressed) {
-                // N + Up: Strafe up without changing orientation
-                if (!player.stunt.move(0, -1)) {
-                  return;
-                }
-              } else {
-                // Just Up: Face up and start moving
-                if (!player.stunt.move(-1, 0)) {
-                  return;
-                }
+              if (player.stunt != null) {
+                player.stunt.jump();
               }
-              m_playerMoving = true;
             }
             break;
             
           case VirtualKeyCodes.VK_DOWN:
-            if (!m_downPressed) { // Only trigger on initial press
+            if (!m_downPressed) {
               m_downPressed = true;
-              if (m_nPressed) {
-                // N + Down: Strafe down without changing orientation
-                if (!player.stunt.move(0, 1)) {
-                  return;
-                }
-              } else {
-                // Just Down: Face down and start moving
-                if (!player.stunt.move(1, 0)) {
-                  return;
-                }
-              }
-              m_playerMoving = true;
-            }
-            break;
-            
-          case VirtualKeyCodes.VK_LEFT:
-            if (!m_leftPressed) { // Only trigger on initial press
-              m_leftPressed = true;
-              if (m_shift) {
-                // Shift+Left: rotate counter-clockwise
-                if (!player.stunt.rotate(-90)) {
-                  return;
-                }
-                m_playerRotating = true;
-              } else if (m_nPressed) {
-                // N + Left: Strafe left without changing orientation
-                if (!player.stunt.move(-1, 0)) {
-                  return;
-                }
-                m_playerMoving = true;
-              } else {
-                // Just Left: Face left and start moving
-                if (!player.stunt.move(0, -1)) {
-                  return;
-                }
-                m_playerMoving = true;
-              }
-            }
-            break;
-            
-          case VirtualKeyCodes.VK_RIGHT:
-            if (!m_rightPressed) { // Only trigger on initial press
-              m_rightPressed = true;
-              if (m_shift) {
-                // Shift+Right: rotate clockwise
-                if (!player.stunt.rotate(90)) {
-                  return;
-                }
-                m_playerRotating = true;
-              } else if (m_nPressed) {
-                // N + Right: Strafe right without changing orientation
-                if (!player.stunt.move(1, 0)) {
-                  return;
-                }
-                m_playerMoving = true;
-              } else {
-                // Just Right: Face right and start moving
-                if (!player.stunt.move(0, 1)) {
-                  return;
-                }
-                m_playerMoving = true;
+              if (player.stunt != null) {
+                player.stunt.slide();
               }
             }
             break;
@@ -255,71 +90,32 @@ public class Controller0 extends Controller {
 
     @Override
     public void released(Canvas canvas, int keyCode, char keyChar) {
-      // Handle parent functionality first
       super.released(canvas, keyCode, keyChar);
       
-      if (keyCode == VirtualKeyCodes.VK_SHIFT) {
-        m_shift = false;
-        return;
-      }
-      
-      // Handle N key release
-      if (keyChar == 'N' || keyChar == 'n') {
-        m_nPressed = false;
-        return;
-      }
-      
-      // Handle movement key releases
-      Player player = m_model.player();
-      if (player != null) {
-        switch (keyCode) {
-          case VirtualKeyCodes.VK_UP:
-            m_upPressed = false;
-            break;
-          case VirtualKeyCodes.VK_DOWN:
-            m_downPressed = false;
-            break;
-          case VirtualKeyCodes.VK_LEFT:
-            m_leftPressed = false;
-            if (m_shift) {
-              m_playerRotating = false;
-            }
-            break;
-          case VirtualKeyCodes.VK_RIGHT:
-            m_rightPressed = false;
-            if (m_shift) {
-              m_playerRotating = false;
-            }
-            break;
-        }
-        
-        // If no movement keys are pressed, stop moving
-        if (!m_upPressed && !m_downPressed && !m_leftPressed && !m_rightPressed) {
-          if (m_playerMoving) {
-            player.stunt.stopMoving();
-            m_playerMoving = false;
+      switch (keyCode) {
+        case VirtualKeyCodes.VK_UP:
+        case VirtualKeyCodes.VK_SPACE:
+          m_upPressed = false;
+          break;
+        case VirtualKeyCodes.VK_DOWN:
+          m_downPressed = false;
+          // Stop sliding when down key is released
+          Player player = m_model.player();
+          if (player != null && player.stunt instanceof game.model.StuntPlayer) {
+            ((game.model.StuntPlayer) player.stunt).stopSliding();
           }
-        }
+          break;
       }
     }
   }
 
-  protected class PlayerMouseListener extends MouseListener {
-
-    @Override
-    public void moved(Canvas canvas, int px, int py) {
-      // Just update mouse position in view, no auto-rotation when moving or in N mode
-      super.moved(canvas, px, py);
-    }
-
+  // Override Controller's MouseListener to intercept clicks
+  protected class MouseListener extends Controller.MouseListener {
     @Override
     public void pressed(Canvas canvas, int bno, int x, int y) {
-      // Mouse controls disabled for grid-based movement
-    }
-
-    @Override
-    public void released(Canvas canvas, int bno, int x, int y) {
-      // Mouse controls disabled for grid-based movement
+      // forward to UI manager first
+      if (m_ui != null) m_ui.handleMouseClick(x, y);
+      // then maybe gameplay
     }
   }
 } 
